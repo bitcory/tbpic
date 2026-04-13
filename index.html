@@ -4,7 +4,59 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#016837" />
-<title>우리동네사진관</title>
+<title>우리동네사진관 · AI로 만드는 나만의 인생샷</title>
+<meta name="description" content="시니어도 쉽게 쓰는 AI 사진관. 원하는 스타일을 골라 내 사진을 프로필·빈티지·스튜디오·웨딩·여행 컷으로 변환하세요." />
+<meta name="keywords" content="우리동네사진관, AI 사진관, AI 프로필, 시니어 프로필, 사진 변환, 인생샷, AI 포토" />
+<meta name="author" content="아이크루" />
+<meta name="format-detection" content="telephone=no" />
+
+<!-- iOS PWA -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="우리동네사진관" />
+<link rel="apple-touch-icon" href="/icon.png" />
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="/icon.png" />
+<link rel="shortcut icon" href="/icon.png" />
+
+<!-- Canonical -->
+<link rel="canonical" href="https://tbpic.aitoolb.com/" />
+
+<!-- Open Graph (카카오톡/페이스북 공유) -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="우리동네사진관" />
+<meta property="og:title" content="우리동네사진관 · AI로 만드는 나만의 인생샷" />
+<meta property="og:description" content="시니어도 쉽게 쓰는 AI 사진관. 스타일을 골라 내 사진을 인생샷으로 바꿔드려요." />
+<meta property="og:url" content="https://tbpic.aitoolb.com/" />
+<meta property="og:image" content="https://tbpic.aitoolb.com/icon.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:locale" content="ko_KR" />
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="우리동네사진관 · AI로 만드는 나만의 인생샷" />
+<meta name="twitter:description" content="시니어도 쉽게 쓰는 AI 사진관. 원하는 스타일로 내 사진을 변환하세요." />
+<meta name="twitter:image" content="https://tbpic.aitoolb.com/icon.png" />
+
+<!-- Robots -->
+<meta name="robots" content="index, follow" />
+
+<!-- Schema.org -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "우리동네사진관",
+  "url": "https://tbpic.aitoolb.com/",
+  "description": "AI로 누구나 쉽게 만드는 인생샷 사진관",
+  "applicationCategory": "PhotoApplication",
+  "operatingSystem": "Web",
+  "inLanguage": "ko-KR",
+  "publisher": { "@type": "Organization", "name": "아이크루" }
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;700;800&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet" />
@@ -502,13 +554,13 @@
           <div class="upload-dots hidden" id="uploadDots"></div>
         </div>
 
-        <div class="prompt-box">
+        <div class="prompt-box" id="promptBox">
           <label for="promptInput">프롬프트</label>
           <textarea id="promptInput" placeholder="원하는 스타일을 자유롭게 적어주세요. 예) 부드러운 자연광, 파스텔톤, 영화같은 분위기"></textarea>
         </div>
       </div>
 
-      <div class="action-row">
+      <div class="action-row" id="actionRow">
         <button class="action-btn secondary" id="autoBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/>
@@ -519,7 +571,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M5 12l5 5L20 7"/>
           </svg>
-          사진 생성
+          <span id="generateLabel">사진 생성하기</span>
         </button>
       </div>
     </section>
@@ -615,23 +667,48 @@
   })();
 
   /* =========================== Styles =========================== */
+  // preset: 프롬프트/자동버튼 숨김(고정 프롬프트만 사용)
+  // editable: 사용자 프롬프트 입력 + 자동 생성 모두 노출
   const STYLES = [
     { id: 'portrait', tag: 'Portrait', title: '프로필 사진',
-      img: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800&q=80',
-      prompt: '깔끔한 화이트 배경, 자연스러운 표정, 전문 스튜디오 조명의 증명사진' },
+      img: 'styles/profile.png',
+      mode: 'preset',
+      prompt: `Please refer to the attached model image for facial and physical features. This is a professional studio medium-shot portrait of the model wearing a custom-made black blazer over a white shirt and a bracelet. With arms crossed and looking straight ahead, the model displays a soft, confident smile, exuding a professional and elegant atmosphere. The gaze is direct toward the camera, conveying a competent and sophisticated vibe. Please accurately maintain the facial features, bone structure, hair texture, and depiction of the figure in the reference image. Background: A dark, textured studio background with a mottled blend of deep blue and reddish-brown creates an atmospheric and sophisticated feel. Lighting: Professional studio lighting is used to illuminate the hair and shoulders (left from the viewer's perspective), while soft, subtle key lighting is cast from the front left to highlight facial features and fabric texture. Pose: A confident and professional pose with arms crossed and the body slightly tilted emphasizes authority and elegance. Camera: Using an eye-level angle and a medium-shot composition, the focus is placed solely on the subject to capture the details of the clothing and accessories. Sharp detail and soft bokeh effects were achieved using the Canon EOS R5 full-frame DSLR and an 85mm f/1.8 lens. Style: Shot in full color like a high-end studio photograph, the composition centers on a single person, capturing a professional and elegant atmosphere.` },
     { id: 'vintage', tag: 'Vintage', title: '빈티지 필름',
       img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&q=80',
+      mode: 'editable',
       prompt: '70년대 빈티지 필름 카메라 감성, 따뜻한 색감, 입자감 있는 그레인' },
     { id: 'studio', tag: 'Studio', title: '스튜디오 조명',
       img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=80',
+      mode: 'editable',
       prompt: '드라마틱한 측면 조명, 어두운 배경, 깊은 음영의 시네마틱 인물 사진' },
     { id: 'wedding', tag: 'Wedding', title: '웨딩 스냅',
       img: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80',
+      mode: 'editable',
       prompt: '로맨틱한 야외 웨딩 스냅, 부드러운 햇살, 화사한 화이트톤' },
     { id: 'travel', tag: 'Travel', title: '여행 감성',
       img: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&q=80',
+      mode: 'editable',
       prompt: '유럽 풍경을 배경으로 한 자연스러운 여행 스냅, 황금 시간대 따뜻한 빛' },
   ];
+
+  /* =========================== Gemini (서버리스 프록시) =========================== */
+  function dataUrlToBase64(dataUrl) {
+    const [meta, b64] = dataUrl.split(',');
+    const mime = meta.match(/data:([^;]+);/)?.[1] || 'image/png';
+    return { mime, data: b64 };
+  }
+  async function geminiGenerate(prompt, imageDataUrl) {
+    const { mime, data } = dataUrlToBase64(imageDataUrl);
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, imageBase64: data, mimeType: mime }),
+    });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json?.error || 'API 호출 실패');
+    return json.dataUrl;
+  }
 
   /* =========================== Main view: cards =========================== */
   const scroller = document.getElementById('scroller');
@@ -691,6 +768,9 @@
   const autoBtn = document.getElementById('autoBtn');
   const backBtn = document.getElementById('backBtn');
 
+  const promptBox = document.getElementById('promptBox');
+  const generateLabel = document.getElementById('generateLabel');
+
   let currentStyle = null;
   let originalDataUrl = null;
   let resultDataUrl = null;
@@ -698,7 +778,15 @@
   function openDetail(idx) {
     currentStyle = STYLES[idx];
     detailTitle.textContent = currentStyle.title;
-    promptInput.value = currentStyle.prompt;
+    if (currentStyle.mode === 'preset') {
+      promptBox.classList.add('hidden');
+      autoBtn.classList.add('hidden');
+      promptInput.value = '';
+    } else {
+      promptBox.classList.remove('hidden');
+      autoBtn.classList.remove('hidden');
+      promptInput.value = currentStyle.prompt;
+    }
     resetUpload();
     viewMain.classList.add('is-out-left');
     viewDetail.classList.remove('is-out-right');
@@ -802,7 +890,6 @@
     a.click();
   }
 
-  /* ---------- Generate stubs (API hook later) ---------- */
   async function callGenerate(promptText) {
     if (!localStorage.getItem('tbpic_token')) {
       alert('로그인 후 이용 가능합니다.');
@@ -812,29 +899,30 @@
       alert('먼저 사진을 업로드해주세요.');
       return;
     }
-    const orig = generateBtn.textContent;
     generateBtn.disabled = true;
     autoBtn.disabled = true;
-    generateBtn.innerHTML = '생성 중...';
+    generateLabel.textContent = '생성 중...';
     try {
-      // TODO: 실제 Gemini API 연동 자리. 지금은 원본 그대로 표시(데모).
-      await new Promise(r => setTimeout(r, 800));
-      resultDataUrl = originalDataUrl;
+      const resultUrl = await geminiGenerate(promptText, originalDataUrl);
+      resultDataUrl = resultUrl;
       renderResultSlide();
     } catch (err) {
       alert('생성 실패: ' + (err?.message || err));
     } finally {
       generateBtn.disabled = false;
       autoBtn.disabled = false;
-      generateBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> 사진 생성`;
+      generateLabel.textContent = '사진 생성하기';
     }
   }
 
   generateBtn.addEventListener('click', () => {
-    callGenerate(promptInput.value.trim() || currentStyle.prompt);
+    // preset 모드는 항상 고정 프롬프트, editable은 사용자 입력 우선
+    const text = currentStyle.mode === 'preset'
+      ? currentStyle.prompt
+      : (promptInput.value.trim() || currentStyle.prompt);
+    callGenerate(text);
   });
   autoBtn.addEventListener('click', () => {
-    // 자동 생성: 사용자 프롬프트 무시, 카드 기본 프롬프트로 호출
     callGenerate(currentStyle.prompt);
   });
 </script>
