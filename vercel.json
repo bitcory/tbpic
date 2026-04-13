@@ -1,7 +1,12 @@
 {
+  "cleanUrls": true,
+  "trailingSlash": false,
   "functions": {
     "api/generate.js": {
       "maxDuration": 60
     }
-  }
+  },
+  "rewrites": [
+    { "source": "/mypage", "destination": "/mypage.html" }
+  ]
 }
