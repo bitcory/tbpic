@@ -631,6 +631,8 @@
   ];
 
   let isAdminMode = false;
+  let isLeaving = false;
+  window.addEventListener('pagehide', () => { isLeaving = true; });
 
   async function init() {
     try {
@@ -646,6 +648,7 @@
         await loadChargeRequests();
       }
     } catch (err) {
+      if (isLeaving) return;
       alert('데이터 로딩 실패: ' + err.message);
     }
   }
@@ -896,6 +899,7 @@
 
   document.getElementById('logoutBtn').addEventListener('click', async () => {
     if (!confirm('로그아웃 하시겠어요?')) return;
+    isLeaving = true;
     try {
       // Kakao SDK 로드돼 있으면 로그아웃 시도 (메인페이지에서 로드됨)
       if (window.Kakao?.Auth?.getAccessToken) {
