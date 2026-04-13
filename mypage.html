@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#016837" />
+<meta name="robots" content="noindex,nofollow" />
+<title>마이페이지 · 우리동네사진관</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    background: #F1F5F9;
+    color: #1E293B;
+    font-family: 'Noto Sans KR', sans-serif;
+    min-height: 100vh;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .wrap { max-width: 480px; margin: 0 auto; padding: env(safe-area-inset-top) 0 0; }
+  .hidden { display: none !important; }
+
+  /* Header */
+  .top {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 18px;
+  }
+  .back-btn {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: #FFFFFF; border: 1px solid #E2E8F0;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .back-btn svg { width: 22px; height: 22px; color: #334155; }
+  .top h1 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+
+  /* Profile card */
+  .profile {
+    margin: 0 18px 16px;
+    background: linear-gradient(135deg, #00B380 0%, #016837 100%);
+    color: #fff;
+    border-radius: 20px;
+    padding: 22px 20px;
+    display: flex; align-items: center; gap: 16px;
+    box-shadow: 0 14px 28px -14px rgba(1,104,55,0.5);
+    position: relative;
+  }
+  .profile img {
+    width: 64px; height: 64px;
+    border-radius: 999px;
+    border: 3px solid rgba(255,255,255,0.5);
+    background: rgba(255,255,255,0.15);
+    object-fit: cover;
+  }
+  .profile .nick {
+    font-size: 20px; font-weight: 800; line-height: 1.2;
+  }
+  .profile .id {
+    font-size: 12px; opacity: 0.85; margin-top: 2px;
+    font-family: ui-monospace, monospace;
+  }
+  .badge {
+    position: absolute; top: 12px; right: 12px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.95);
+    color: #016837;
+    font-size: 11px; font-weight: 800;
+    letter-spacing: 0.04em;
+  }
+
+  /* Quota card */
+  .quota-card {
+    margin: 0 18px 16px;
+    background: #FFFFFF;
+    border-radius: 20px;
+    padding: 20px;
+    border: 1px solid #E2E8F0;
+  }
+  .quota-card .label {
+    font-size: 12px; font-weight: 700;
+    color: #64748B;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .quota-card .big {
+    font-size: 36px; font-weight: 800; letter-spacing: -0.02em;
+    color: #0F172A;
+  }
+  .quota-card .big small {
+    font-size: 18px; font-weight: 700; color: #94A3B8;
+  }
+  .quota-bar {
+    margin-top: 12px;
+    height: 8px;
+    border-radius: 999px;
+    background: #E2E8F0;
+    overflow: hidden;
+  }
+  .quota-bar > span {
+    display: block; height: 100%;
+    background: linear-gradient(90deg, #00B380, #016837);
+    transition: width 0.5s ease;
+  }
+  .quota-foot {
+    margin-top: 8px;
+    font-size: 13px; color: #64748B;
+    display: flex; justify-content: space-between;
+  }
+
+  /* Section */
+  .section { margin: 24px 18px 12px; }
+  .section h2 {
+    margin: 0 0 10px;
+    font-size: 16px; font-weight: 800; letter-spacing: -0.02em;
+  }
+
+  /* History */
+  .history {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .h-row {
+    padding: 12px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid #F1F5F9;
+    font-size: 14px;
+  }
+  .h-row:last-child { border-bottom: none; }
+  .h-row .style { font-weight: 700; color: #0F172A; }
+  .h-row .meta { font-size: 12px; color: #64748B; margin-top: 2px; }
+  .h-row .pill { padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+  .pill.ok { background: #DCFCE7; color: #15803D; }
+  .pill.bad { background: #FEE2E2; color: #B91C1C; }
+  .empty { padding: 24px; text-align: center; color: #94A3B8; font-size: 13px; }
+
+  /* Admin section */
+  .admin-section { margin: 24px 18px 40px; }
+  .users-table {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .u-row {
+    padding: 12px 14px;
+    border-bottom: 1px solid #F1F5F9;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .u-row:last-child { border-bottom: none; }
+  .u-row .av {
+    width: 38px; height: 38px;
+    border-radius: 999px;
+    background: #E2E8F0 center/cover no-repeat;
+    flex: 0 0 auto;
+  }
+  .u-row .info { flex: 1 1 auto; min-width: 0; }
+  .u-row .nm {
+    font-weight: 700; font-size: 14px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .u-row .ad {
+    font-size: 10px; color: #016837; font-weight: 800;
+    background: #DCFCE7; padding: 2px 6px; border-radius: 6px;
+  }
+  .u-row .sub { font-size: 11px; color: #64748B; margin-top: 2px; font-family: ui-monospace, monospace; }
+  .u-row .qt { font-size: 13px; font-weight: 700; color: #0F172A; flex: 0 0 auto; min-width: 60px; text-align: right; }
+  .u-row .actions { display: flex; gap: 4px; flex: 0 0 auto; }
+  .mini {
+    border: none; cursor: pointer; font-family: inherit; font-weight: 700;
+    border-radius: 8px; padding: 6px 8px; font-size: 11px;
+  }
+  .mini.add { background: #00996D; color: #fff; }
+  .mini.charge { background: #016837; color: #fff; }
+  .mini.reset { background: #E2E8F0; color: #334155; }
+  .mini.block { background: #FEE2E2; color: #B91C1C; }
+  .mini.unblock { background: #FEF3C7; color: #92400E; }
+
+  .stat-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    margin-bottom: 14px;
+  }
+  .stat {
+    background: #FFFFFF; border: 1px solid #E2E8F0;
+    border-radius: 12px; padding: 12px;
+    text-align: center;
+  }
+  .stat .v { font-size: 20px; font-weight: 800; color: #0F172A; }
+  .stat .l { font-size: 11px; color: #64748B; margin-top: 2px; }
+
+  .login-needed {
+    margin: 80px 24px;
+    padding: 32px 24px;
+    background: #FFFFFF; border-radius: 20px;
+    border: 1px solid #E2E8F0;
+    text-align: center;
+  }
+  .login-needed p { margin: 0 0 16px; color: #475569; font-size: 15px; }
+  .login-needed a {
+    display: inline-block; padding: 12px 24px;
+    background: #FEE500; color: #181600;
+    border-radius: 12px; text-decoration: none;
+    font-weight: 800;
+  }
+
+  /* Charge packages */
+  .packages { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .pkg {
+    position: relative;
+    background: #FFFFFF; border: 2px solid #E2E8F0;
+    border-radius: 16px; padding: 16px 10px;
+    text-align: center; cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .pkg:hover { border-color: #00996D; transform: translateY(-2px); }
+  .pkg.best { border-color: #00996D; background: linear-gradient(180deg, #F0FDF4, #FFFFFF); }
+  .pkg .size {
+    font-size: 28px; font-weight: 800; letter-spacing: -0.02em;
+    color: #016837;
+  }
+  .pkg .size small { font-size: 13px; color: #64748B; font-weight: 700; }
+  .pkg .orig {
+    font-size: 12px; color: #94A3B8;
+    text-decoration: line-through; margin-top: 4px;
+  }
+  .pkg .price {
+    font-size: 16px; font-weight: 800; color: #0F172A;
+    margin-top: 2px;
+  }
+  .pkg .badge-off {
+    position: absolute; top: -8px; right: -4px;
+    background: #EF4444; color: #fff;
+    font-size: 10px; font-weight: 800;
+    padding: 3px 8px; border-radius: 999px;
+    box-shadow: 0 4px 8px -2px rgba(239,68,68,0.5);
+  }
+
+  /* Modal */
+  .modal-bg {
+    position: fixed; inset: 0;
+    background: rgba(15,23,42,0.6);
+    display: flex; align-items: flex-end; justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(4px);
+  }
+  .modal {
+    background: #FFFFFF;
+    width: 100%; max-width: 480px;
+    border-radius: 24px 24px 0 0;
+    padding: 24px 22px calc(24px + env(safe-area-inset-bottom));
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal h3 {
+    margin: 0 0 4px; font-size: 20px; font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .modal .desc { font-size: 13px; color: #64748B; margin-bottom: 18px; }
+
+  .pay-row {
+    background: #F8FAFC; border-radius: 14px;
+    padding: 14px 16px; margin-bottom: 10px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .pay-row .l { font-size: 12px; color: #64748B; font-weight: 700; }
+  .pay-row .v { font-size: 15px; color: #0F172A; font-weight: 700; margin-top: 2px; }
+  .pay-row .copy {
+    background: #00996D; color: #fff;
+    border: none; border-radius: 8px;
+    padding: 8px 12px; font-size: 12px; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+  }
+  .pay-row.amount .v { color: #016837; font-size: 22px; font-weight: 800; }
+
+  .kakao-pay-btn {
+    width: 100%; height: 52px;
+    background: #FEE500; color: #181600;
+    border: none; border-radius: 14px;
+    font-family: inherit; font-size: 16px; font-weight: 800;
+    margin: 14px 0 8px;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+
+  .modal-actions { display: flex; gap: 10px; margin-top: 8px; }
+  .modal-actions button {
+    flex: 1; height: 48px;
+    border: none; border-radius: 12px;
+    font-family: inherit; font-weight: 800; font-size: 14px;
+    cursor: pointer;
+  }
+  .btn-cancel { background: #E2E8F0; color: #475569; }
+  .btn-confirm { background: linear-gradient(112deg,#68D970,#00996D); color: #fff; }
+
+  .step-info {
+    background: #FEF3C7; border-radius: 12px;
+    padding: 12px 14px; font-size: 12px; color: #92400E;
+    margin: 12px 0 4px; line-height: 1.5;
+  }
+
+  /* Request status */
+  .req-pending {
+    background: #FEF3C7; border: 1px solid #FCD34D;
+    border-radius: 14px; padding: 14px 16px;
+    margin: 0 18px 16px;
+    color: #78350F; font-size: 13px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .req-pending .pulse {
+    width: 8px; height: 8px; border-radius: 999px;
+    background: #F59E0B;
+    animation: pulse 1.4s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.5); }
+  }
+
+  /* Admin charge requests */
+  .charge-req {
+    padding: 12px 14px;
+    border-bottom: 1px solid #F1F5F9;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .charge-req:last-child { border-bottom: none; }
+  .charge-req .av {
+    width: 38px; height: 38px; border-radius: 999px;
+    background: #E2E8F0 center/cover no-repeat; flex: 0 0 auto;
+  }
+  .charge-req .info { flex: 1 1 auto; min-width: 0; }
+  .charge-req .nm { font-weight: 700; font-size: 14px; }
+  .charge-req .meta { font-size: 12px; color: #64748B; margin-top: 2px; }
+  .charge-req .amount {
+    font-weight: 800; color: #016837;
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <button class="back-btn" onclick="location.href='/'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+      </button>
+      <h1>마이페이지</h1>
+    </div>
+
+    <div id="needLogin" class="login-needed hidden">
+      <p>로그인이 필요합니다</p>
+      <a href="/">홈으로 가기</a>
+    </div>
+
+    <div id="content" class="hidden">
+      <div class="profile">
+        <img id="pImg" alt="" onerror="this.style.visibility='hidden'" />
+        <div>
+          <div class="nick" id="pNick">-</div>
+          <div class="id" id="pId">-</div>
+        </div>
+        <div class="badge hidden" id="pBadge">SUPER ADMIN</div>
+      </div>
+
+      <div class="quota-card">
+        <div class="label">남은 사진 횟수</div>
+        <div class="big"><span id="qRemain">0</span> <small>/ <span id="qTotal">0</span></small></div>
+        <div class="quota-bar"><span id="qBar" style="width:0%"></span></div>
+        <div class="quota-foot">
+          <span>사용: <strong id="qUsed">0</strong>회</span>
+          <span id="qLast">최근 사용: -</span>
+        </div>
+      </div>
+
+      <!-- Pending charge request banner -->
+      <div id="pendingBanner" class="req-pending hidden">
+        <span class="pulse"></span>
+        <div>
+          <strong id="pendingText">충전 요청이 처리 대기 중입니다</strong>
+          <div style="font-size:11px;margin-top:2px;opacity:0.8">입금이 확인되면 즉시 충전됩니다</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>📷 사진 충전하기</h2>
+        <div style="font-size:12px;color:#EF4444;font-weight:700;margin-bottom:10px;">🎉 OPEN EVENT · 정상가 60% 할인</div>
+        <div class="packages" id="packages"></div>
+      </div>
+
+      <div class="section">
+        <h2>최근 생성 내역</h2>
+        <div class="history" id="historyList">
+          <div class="empty">아직 생성한 사진이 없습니다</div>
+        </div>
+      </div>
+
+      <!-- 어드민 전용 -->
+      <div id="adminWrap" class="admin-section hidden">
+        <h2 style="margin:0 0 12px;font-size:18px;font-weight:800;">💰 충전 요청 관리</h2>
+        <div class="users-table" id="chargeTable">
+          <div class="empty">요청이 없습니다</div>
+        </div>
+
+        <h2 style="margin:24px 0 12px;font-size:18px;font-weight:800;">전체 사용자</h2>
+        <div class="stat-row" id="adminStats"></div>
+        <div class="users-table" id="usersTable">
+          <div class="empty">불러오는 중...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 충전 모달 -->
+  <div id="chargeModal" class="modal-bg hidden">
+    <div class="modal">
+      <h3 id="modalTitle">사진 10장 충전</h3>
+      <p class="desc">아래 계좌로 입금하시거나 카카오페이로 송금해주세요.<br/>입금 확인 후 자동으로 충전됩니다.</p>
+
+      <div class="pay-row amount">
+        <div>
+          <div class="l">결제 금액</div>
+          <div class="v" id="modalAmount">₩1,900</div>
+        </div>
+      </div>
+
+      <a href="https://qr.kakaopay.com/Ej7psYtxY" target="_blank" rel="noopener" class="kakao-pay-btn">
+        💛 카카오페이로 송금하기
+      </a>
+
+      <div class="pay-row">
+        <div>
+          <div class="l">입금 계좌</div>
+          <div class="v">하나은행 170-910185-95607</div>
+          <div style="font-size:12px;color:#64748B;margin-top:2px">예금주: 김진욱</div>
+        </div>
+        <button class="copy" onclick="copyAccount()">복사</button>
+      </div>
+
+      <div class="step-info">
+        💡 입금 시 카카오 닉네임으로 보내주시면 빠르게 확인됩니다.<br/>
+        평일 영업시간 내 1시간 이내, 야간/주말은 다음날 처리됩니다.
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal()">취소</button>
+        <button class="btn-confirm" id="modalConfirm">송금했어요</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const userStr = localStorage.getItem('tbpic_user');
+  let kakaoUser = null;
+  try { kakaoUser = userStr ? JSON.parse(userStr) : null; } catch (_) {}
+
+  if (!kakaoUser?.id) {
+    document.getElementById('needLogin').classList.remove('hidden');
+  } else {
+    document.getElementById('content').classList.remove('hidden');
+    init();
+  }
+
+  async function api(path, opts = {}) {
+    const headers = Object.assign({
+      'X-Kakao-Id': String(kakaoUser.id),
+    }, opts.headers || {});
+    if (opts.body && typeof opts.body !== 'string') {
+      headers['Content-Type'] = 'application/json';
+      opts.body = JSON.stringify(opts.body);
+    }
+    const res = await fetch(path, { ...opts, headers });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
+    return json;
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '-';
+    const d = new Date(iso);
+    return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  }
+  function escapeHtml(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  const PACKAGES = [
+    { size: 10, price: 1900, original: 4900, off: 61 },
+    { size: 20, price: 3900, original: 9800, off: 60, best: true },
+    { size: 30, price: 5900, original: 14700, off: 60 },
+  ];
+
+  async function init() {
+    try {
+      const me = await api('/api/me');
+      renderMe(me);
+      renderPackages();
+      await loadMyChargeStatus();
+      if (me.isAdmin) {
+        document.getElementById('adminWrap').classList.remove('hidden');
+        document.getElementById('pBadge').classList.remove('hidden');
+        await loadUsers();
+        await loadChargeRequests();
+      }
+    } catch (err) {
+      alert('데이터 로딩 실패: ' + err.message);
+    }
+  }
+
+  function renderPackages() {
+    const wrap = document.getElementById('packages');
+    wrap.innerHTML = PACKAGES.map(p => `
+      <div class="pkg ${p.best ? 'best' : ''}" data-size="${p.size}">
+        <span class="badge-off">${p.off}% OFF</span>
+        <div class="size">${p.size}<small>장</small></div>
+        <div class="orig">₩${p.original.toLocaleString()}</div>
+        <div class="price">₩${p.price.toLocaleString()}</div>
+      </div>
+    `).join('');
+    wrap.querySelectorAll('.pkg').forEach(el => {
+      el.addEventListener('click', () => openModal(parseInt(el.dataset.size, 10)));
+    });
+  }
+
+  let modalSize = 10;
+  function openModal(size) {
+    const pkg = PACKAGES.find(p => p.size === size);
+    if (!pkg) return;
+    modalSize = size;
+    document.getElementById('modalTitle').textContent = `사진 ${size}장 충전`;
+    document.getElementById('modalAmount').textContent = `₩${pkg.price.toLocaleString()}`;
+    document.getElementById('chargeModal').classList.remove('hidden');
+  }
+  function closeModal() {
+    document.getElementById('chargeModal').classList.add('hidden');
+  }
+  window.closeModal = closeModal;
+  window.copyAccount = function() {
+    navigator.clipboard?.writeText('170-910185-95607').then(
+      () => alert('계좌번호가 복사되었습니다'),
+      () => prompt('계좌번호를 복사하세요', '170-910185-95607')
+    );
+  };
+
+  document.getElementById('modalConfirm').addEventListener('click', async () => {
+    const btn = document.getElementById('modalConfirm');
+    btn.disabled = true;
+    btn.textContent = '처리 중...';
+    try {
+      await api('/api/charge/request', {
+        method: 'POST',
+        body: { packageSize: modalSize, depositorName: kakaoUser?.properties?.nickname || '' },
+      });
+      closeModal();
+      alert('충전 요청이 접수되었습니다.\n입금 확인 후 자동으로 충전됩니다.');
+      await loadMyChargeStatus();
+    } catch (err) {
+      alert('요청 실패: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '송금했어요';
+    }
+  });
+
+  async function loadMyChargeStatus() {
+    try {
+      const { requests } = await api('/api/charge/request');
+      const pending = requests.find(r => r.status === 'pending');
+      const banner = document.getElementById('pendingBanner');
+      if (pending) {
+        document.getElementById('pendingText').textContent =
+          `사진 ${pending.packageSize}장 충전 요청 처리 대기 중 (₩${pending.amountWon.toLocaleString()})`;
+        banner.classList.remove('hidden');
+      } else {
+        banner.classList.add('hidden');
+      }
+    } catch (_) {}
+  }
+
+  async function loadChargeRequests() {
+    try {
+      const { requests } = await api('/api/charge/list?status=pending');
+      const wrap = document.getElementById('chargeTable');
+      if (!requests.length) {
+        wrap.innerHTML = '<div class="empty">대기 중인 충전 요청이 없습니다</div>';
+        return;
+      }
+      wrap.innerHTML = requests.map(r => `
+        <div class="charge-req" data-id="${r.id}">
+          <div class="av" style="background-image:url('${escapeHtml(r.profileImage || '')}')"></div>
+          <div class="info">
+            <div class="nm">${escapeHtml(r.nickname || '익명')} · <span class="amount">${r.packageSize}장 / ₩${r.amountWon.toLocaleString()}</span></div>
+            <div class="meta">${fmtDate(r.createdAt)} · 입금자: ${escapeHtml(r.depositorName || '-')}</div>
+          </div>
+          <div class="actions">
+            <button class="mini add" data-act="approve">승인</button>
+            <button class="mini block" data-act="reject">거부</button>
+          </div>
+        </div>
+      `).join('');
+      wrap.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = parseInt(btn.closest('.charge-req').dataset.id, 10);
+          const action = btn.dataset.act;
+          if (action === 'reject' && !confirm('정말 거부할까요?')) return;
+          try {
+            await api('/api/charge/process', {
+              method: 'POST',
+              body: { id, action },
+            });
+            await loadChargeRequests();
+            await loadUsers();
+          } catch (err) {
+            alert('실패: ' + err.message);
+          }
+        });
+      });
+    } catch (_) {}
+  }
+
+  function renderMe(me) {
+    document.getElementById('pImg').src = me.profileImage || '';
+    document.getElementById('pNick').textContent = me.nickname || '익명';
+    document.getElementById('pId').textContent = me.kakaoId;
+    document.getElementById('qRemain').textContent = me.remaining;
+    document.getElementById('qTotal').textContent = me.quota;
+    document.getElementById('qUsed').textContent = me.used;
+    document.getElementById('qLast').textContent = '최근 사용: ' + fmtDate(me.lastUsedAt);
+    const pct = me.quota ? Math.min(100, (me.used / me.quota) * 100) : 0;
+    document.getElementById('qBar').style.width = pct + '%';
+
+    const list = document.getElementById('historyList');
+    if (!me.history?.length) {
+      list.innerHTML = '<div class="empty">아직 생성한 사진이 없습니다</div>';
+    } else {
+      list.innerHTML = me.history.map(h => `
+        <div class="h-row">
+          <div>
+            <div class="style">${escapeHtml(h.styleId || '-')}</div>
+            <div class="meta">${fmtDate(h.createdAt)}${h.error ? ' · ' + escapeHtml(h.error.slice(0,40)) : ''}</div>
+          </div>
+          <span class="pill ${h.ok ? 'ok' : 'bad'}">${h.ok ? '성공' : '실패'}</span>
+        </div>
+      `).join('');
+    }
+  }
+
+  async function loadUsers() {
+    const { users } = await api('/api/admin/users');
+    const totalUsed = users.reduce((s, u) => s + u.used, 0);
+    const totalRemain = users.reduce((s, u) => s + u.remaining, 0);
+    document.getElementById('adminStats').innerHTML = `
+      <div class="stat"><div class="v">${users.length}</div><div class="l">사용자</div></div>
+      <div class="stat"><div class="v">${totalUsed}</div><div class="l">총 생성</div></div>
+      <div class="stat"><div class="v">${totalRemain}</div><div class="l">남은 무료</div></div>
+    `;
+
+    const wrap = document.getElementById('usersTable');
+    if (!users.length) {
+      wrap.innerHTML = '<div class="empty">사용자가 없습니다</div>';
+      return;
+    }
+    wrap.innerHTML = users.map(u => `
+      <div class="u-row" data-id="${escapeHtml(u.kakaoId)}">
+        <div class="av" style="background-image:url('${escapeHtml(u.profileImage || '')}')"></div>
+        <div class="info">
+          <div class="nm">
+            ${escapeHtml(u.nickname || '익명')}
+            ${u.isAdmin ? '<span class="ad">ADMIN</span>' : ''}
+          </div>
+          <div class="sub">${escapeHtml(u.kakaoId)}</div>
+        </div>
+        <div class="qt">${u.remaining}/${u.quota}</div>
+        <div class="actions">
+          <button class="mini add" data-act="add">+1</button>
+          <button class="mini charge" data-act="charge">충전</button>
+          <button class="mini reset" data-act="reset">초기화</button>
+          <button class="mini ${u.isBlocked ? 'unblock' : 'block'}" data-act="${u.isBlocked ? 'unblock' : 'block'}">${u.isBlocked ? '해제' : '차단'}</button>
+        </div>
+      </div>
+    `).join('');
+
+    wrap.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const row = btn.closest('.u-row');
+        const kakaoId = row.dataset.id;
+        const u = users.find(x => x.kakaoId === kakaoId);
+        const payload = { kakaoId };
+        if (btn.dataset.act === 'add') payload.quota = u.quota + 1;
+        if (btn.dataset.act === 'charge') {
+          const n = parseInt(prompt(`${u.nickname || '사용자'}에게 몇 장 충전할까요?`, '5') || '0', 10);
+          if (!n || n < 1) return;
+          payload.quota = u.quota + n;
+        }
+        if (btn.dataset.act === 'reset') payload.used = 0;
+        if (btn.dataset.act === 'block') payload.isBlocked = true;
+        if (btn.dataset.act === 'unblock') payload.isBlocked = false;
+        try {
+          await api('/api/admin/adjust', { method: 'POST', body: payload });
+          await loadUsers();
+        } catch (err) {
+          alert('실패: ' + err.message);
+        }
+      });
+    });
+  }
+</script>
+</body>
+</html>

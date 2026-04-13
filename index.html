@@ -589,7 +589,7 @@
   const loginBtn = document.getElementById('kakaoLoginBtn');
   const profileBtn = document.getElementById('profileBtn');
 
-  function setLoggedIn(user) {
+  async function setLoggedIn(user) {
     loginBtn.classList.add('hidden');
     profileBtn.classList.remove('hidden');
     const img = user?.properties?.profile_image
@@ -597,6 +597,24 @@
     if (img) profileBtn.style.backgroundImage = `url(${img})`;
     profileBtn.title = user?.properties?.nickname || '';
     localStorage.setItem('tbpic_user', JSON.stringify(user));
+    // DB upsert (quota 부여 / 마지막 로그인 갱신)
+    try {
+      const r = await fetch('/api/auth/init', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          kakaoId: String(user.id),
+          nickname: user?.properties?.nickname || user?.kakao_account?.profile?.nickname || '',
+          profileImage: img || '',
+        }),
+      });
+      const data = await r.json();
+      if (r.ok) {
+        localStorage.setItem('tbpic_quota', JSON.stringify({
+          quota: data.quota, used: data.used, remaining: data.remaining,
+        }));
+      }
+    } catch (_) {}
   }
   function setLoggedOut() {
     loginBtn.classList.remove('hidden');
@@ -611,10 +629,8 @@
       scope: 'profile_nickname,profile_image',
     });
   });
-  profileBtn.addEventListener('click', async () => {
-    if (!confirm('로그아웃 할까요?')) return;
-    try { await Kakao.Auth.logout(); } catch (_) {}
-    setLoggedOut();
+  profileBtn.addEventListener('click', () => {
+    window.location.href = '/mypage';
   });
   async function handleRedirectCallback() {
     const url = new URL(window.location.href);
@@ -698,15 +714,33 @@
     const mime = meta.match(/data:([^;]+);/)?.[1] || 'image/png';
     return { mime, data: b64 };
   }
-  async function geminiGenerate(prompt, imageDataUrl) {
+  function getKakaoId() {
+    try {
+      const u = JSON.parse(localStorage.getItem('tbpic_user') || 'null');
+      return u?.id ? String(u.id) : null;
+    } catch { return null; }
+  }
+  async function geminiGenerate(prompt, imageDataUrl, styleId) {
+    const kakaoId = getKakaoId();
+    if (!kakaoId) throw new Error('로그인이 필요합니다');
     const { mime, data } = dataUrlToBase64(imageDataUrl);
     const res = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, imageBase64: data, mimeType: mime }),
+      body: JSON.stringify({ kakaoId, styleId, prompt, imageBase64: data, mimeType: mime }),
     });
     const json = await res.json();
-    if (!res.ok) throw new Error(json?.error || 'API 호출 실패');
+    if (!res.ok) {
+      if (res.status === 402) {
+        throw new Error(`무료 횟수를 모두 사용했습니다 (${json.used}/${json.quota})`);
+      }
+      throw new Error(json?.error || 'API 호출 실패');
+    }
+    if (json.quota !== undefined) {
+      localStorage.setItem('tbpic_quota', JSON.stringify({
+        quota: json.quota, used: json.used, remaining: json.remaining,
+      }));
+    }
     return json.dataUrl;
   }
 
@@ -903,7 +937,7 @@
     autoBtn.disabled = true;
     generateLabel.textContent = '생성 중...';
     try {
-      const resultUrl = await geminiGenerate(promptText, originalDataUrl);
+      const resultUrl = await geminiGenerate(promptText, originalDataUrl, currentStyle.id);
       resultDataUrl = resultUrl;
       renderResultSlide();
     } catch (err) {
