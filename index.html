@@ -29,16 +29,16 @@
 <meta property="og:title" content="우리동네사진관 · AI로 만드는 나만의 인생샷" />
 <meta property="og:description" content="시니어도 쉽게 쓰는 AI 사진관. 스타일을 골라 내 사진을 인생샷으로 바꿔드려요." />
 <meta property="og:url" content="https://tbpic.aitoolb.com/" />
-<meta property="og:image" content="https://tbpic.aitoolb.com/icon.png" />
+<meta property="og:image" content="https://tbpic.aitoolb.com/og.jpg" />
 <meta property="og:image:width" content="1200" />
-<meta property="og:image:height" content="630" />
+<meta property="og:image:height" content="669" />
 <meta property="og:locale" content="ko_KR" />
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="우리동네사진관 · AI로 만드는 나만의 인생샷" />
 <meta name="twitter:description" content="시니어도 쉽게 쓰는 AI 사진관. 원하는 스타일로 내 사진을 변환하세요." />
-<meta name="twitter:image" content="https://tbpic.aitoolb.com/icon.png" />
+<meta name="twitter:image" content="https://tbpic.aitoolb.com/og.jpg" />
 
 <!-- Robots -->
 <meta name="robots" content="index, follow" />
@@ -586,7 +586,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/>
           </svg>
-          자동 생성
+          <span id="autoLabel">자동 생성</span>
         </button>
         <button class="action-btn primary" id="generateBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -749,6 +749,23 @@ Captured with a Canon EOS R5 full-frame DSLR, 85mm f/1.8 lens for crisp detail, 
       img: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&q=80',
       mode: 'editable',
       prompt: '유럽 풍경을 배경으로 한 자연스러운 여행 스냅, 황금 시간대 따뜻한 빛' },
+    { id: 'restore', tag: 'Restore', title: '옛날 사진 복원',
+      img: 'styles/restore.jpg',
+      mode: 'dual',
+      primaryLabel: '컬러로 복원',
+      secondaryLabel: '흑백으로 복원',
+      prompt: `Colorize and restore this old black and white photo.
+Transform it into a modern, ultra-clear photograph.
+Add natural and realistic colors, enhance facial details,
+remove scratches, dust, and blur.
+High dynamic range, sharp focus, 4K resolution, professional studio quality.
+keep the original face and identity exactly the same`,
+      promptSecondary: `This is an old damaged black-and-white photo.
+Restore the photo by removing scratches, dust, stains, and tears.
+Enhance facial details, sharpen the focus, improve contrast and clarity.
+Keep it as a realistic high-resolution black-and-white photograph.
+Preserve the original historical feeling and natural textures.
+keep the original face and identity exactly the same` },
   ];
 
   /* =========================== Gemini (서버리스 프록시) =========================== */
@@ -847,6 +864,7 @@ Captured with a Canon EOS R5 full-frame DSLR, 85mm f/1.8 lens for crisp detail, 
 
   const promptBox = document.getElementById('promptBox');
   const generateLabel = document.getElementById('generateLabel');
+  const autoLabel = document.getElementById('autoLabel');
 
   let currentStyle = null;
   let originalDataUrl = null;
@@ -859,9 +877,18 @@ Captured with a Canon EOS R5 full-frame DSLR, 85mm f/1.8 lens for crisp detail, 
       promptBox.classList.add('hidden');
       autoBtn.classList.add('hidden');
       promptInput.value = '';
+      generateLabel.textContent = '사진 생성하기';
+    } else if (currentStyle.mode === 'dual') {
+      promptBox.classList.add('hidden');
+      autoBtn.classList.remove('hidden');
+      autoLabel.textContent = currentStyle.secondaryLabel || '대안 생성';
+      generateLabel.textContent = currentStyle.primaryLabel || '사진 생성하기';
+      promptInput.value = '';
     } else {
       promptBox.classList.remove('hidden');
       autoBtn.classList.remove('hidden');
+      autoLabel.textContent = '자동 생성';
+      generateLabel.textContent = '사진 생성하기';
       promptInput.value = currentStyle.prompt;
     }
     resetUpload();
@@ -1000,7 +1027,10 @@ Captured with a Canon EOS R5 full-frame DSLR, 85mm f/1.8 lens for crisp detail, 
     callGenerate(text);
   });
   autoBtn.addEventListener('click', () => {
-    callGenerate(currentStyle.prompt);
+    const text = currentStyle.mode === 'dual'
+      ? (currentStyle.promptSecondary || currentStyle.prompt)
+      : currentStyle.prompt;
+    callGenerate(text);
   });
 </script>
 </body>
