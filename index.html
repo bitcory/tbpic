@@ -688,13 +688,17 @@
   // editable: 사용자 프롬프트 입력 + 자동 생성 모두 노출
   const STYLES = [
     { id: 'portrait', tag: 'Portrait', title: '프로필 사진',
-      img: 'styles/profile.png',
+      img: 'styles/profile.jpg',
       mode: 'preset',
       prompt: `Please refer to the attached model image for facial and physical features. This is a professional studio medium-shot portrait of the model wearing a custom-made black blazer over a white shirt and a bracelet. With arms crossed and looking straight ahead, the model displays a soft, confident smile, exuding a professional and elegant atmosphere. The gaze is direct toward the camera, conveying a competent and sophisticated vibe. Please accurately maintain the facial features, bone structure, hair texture, and depiction of the figure in the reference image. Background: A dark, textured studio background with a mottled blend of deep blue and reddish-brown creates an atmospheric and sophisticated feel. Lighting: Professional studio lighting is used to illuminate the hair and shoulders (left from the viewer's perspective), while soft, subtle key lighting is cast from the front left to highlight facial features and fabric texture. Pose: A confident and professional pose with arms crossed and the body slightly tilted emphasizes authority and elegance. Camera: Using an eye-level angle and a medium-shot composition, the focus is placed solely on the subject to capture the details of the clothing and accessories. Sharp detail and soft bokeh effects were achieved using the Canon EOS R5 full-frame DSLR and an 85mm f/1.8 lens. Style: Shot in full color like a high-end studio photograph, the composition centers on a single person, capturing a professional and elegant atmosphere.` },
-    { id: 'vintage', tag: 'Vintage', title: '빈티지 필름',
-      img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&q=80',
-      mode: 'editable',
-      prompt: '70년대 빈티지 필름 카메라 감성, 따뜻한 색감, 입자감 있는 그레인' },
+    { id: 'idphoto', tag: 'ID Photo', title: '증명사진',
+      img: 'styles/idphoto.jpg',
+      mode: 'preset',
+      prompt: `Use the attached reference image as the absolute foundation for facial identity. Maintain exact facial features, bone structure, hair texture, and likeness from the reference image only. Single subject only, single person composition.
+Background: Light neutral gray studio backdrop with a subtle gradient, smooth and seamless professional finish.
+Lighting: Soft professional studio lighting, even front-facing key light, balanced exposure with gentle fill light to remove any harsh shadows.
+Pose: Perfectly centered frontal portrait, head facing directly forward, eyes looking straight into the camera with a neutral and calm expression.
+Camera: High-resolution photography, sharp focus on facial details, 85mm lens for natural proportions. Style: Photorealistic, clean, luxury beauty studio aesthetic, ID photo precision with high-end skin texture preservation.` },
     { id: 'studio', tag: 'Studio', title: '스튜디오 조명',
       img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=80',
       mode: 'editable',
