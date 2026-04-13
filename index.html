@@ -719,6 +719,23 @@ Background: Light neutral gray studio backdrop with a subtle gradient, smooth an
 Lighting: Soft professional studio lighting, even front-facing key light, balanced exposure with gentle fill light to remove any harsh shadows.
 Pose: Perfectly centered frontal portrait, head facing directly forward, eyes looking straight into the camera with a neutral and calm expression.
 Camera: High-resolution photography, sharp focus on facial details, 85mm lens for natural proportions. Style: Photorealistic, clean, luxury beauty studio aesthetic, ID photo precision with high-end skin texture preservation.` },
+    { id: 'restore', tag: 'Restore', title: '옛날 사진 복원',
+      img: 'styles/restore.jpg',
+      mode: 'dual',
+      primaryLabel: '컬러로 복원',
+      secondaryLabel: '흑백으로 복원',
+      prompt: `Colorize and restore this old black and white photo.
+Transform it into a modern, ultra-clear photograph.
+Add natural and realistic colors, enhance facial details,
+remove scratches, dust, and blur.
+High dynamic range, sharp focus, 4K resolution, professional studio quality.
+keep the original face and identity exactly the same`,
+      promptSecondary: `This is an old damaged black-and-white photo.
+Restore the photo by removing scratches, dust, stains, and tears.
+Enhance facial details, sharpen the focus, improve contrast and clarity.
+Keep it as a realistic high-resolution black-and-white photograph.
+Preserve the original historical feeling and natural textures.
+keep the original face and identity exactly the same` },
     { id: 'bw', tag: 'B&W', title: '흑백 사진',
       img: 'styles/bw.jpg',
       mode: 'preset',
@@ -742,30 +759,13 @@ Camera: eye-level angle, close-up framing focusing on facial expression, texture
 
 Captured with a Canon EOS R5 full-frame DSLR, 85mm f/1.8 lens for crisp detail, tonal depth, and fine grain.` },
     { id: 'wedding', tag: 'Wedding', title: '웨딩 스냅',
-      img: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80',
-      mode: 'editable',
-      prompt: '로맨틱한 야외 웨딩 스냅, 부드러운 햇살, 화사한 화이트톤' },
+      img: 'styles/wedding.jpg',
+      mode: 'preset',
+      prompt: `Use the attached image of the model as facial reference and physical features. Romantic and ethereal editorial full shot portrait of uploaded person, wearing the elaborate white lace ballgown from the reference images. A long, sheer cathedral-length tulle veil with delicate lace trim is gently billowing and flowing around her head and shoulders, caught in a soft breeze, creating a dynamic and graceful movement. The model poses naturally, looking slightly off-camera with a gentle, joyful smile, her hands lightly touching the veil or dress, exuding a soft and dreamlike aura. Maintain exact facial features, bone structure, hair accessory, and likeness from the reference image only. Background: a softly blurred outdoor garden or terrace setting with lush greenery and natural light, implying a gentle wind. Lighting: soft natural daylight with a subtle backlight that catches the sheer fabric of the blowing veil, highlighting its texture and movement. Pose: natural and candid standing posture, reacting to the breeze, emphasizing the flow of the veil and dress. Camera: eye-level angle, full shot framing focusing on single subject only, capturing the entire dress and the expansive, flowing veil. Captured with a Canon EOS R5 full-frame DSLR, 85mm f/1.8 lens for crisp detail, shallow depth of field, and natural skin tones. Style: hyper-realistic photography in full color, romantic and airy editorial aesthetic, single person composition.` },
     { id: 'travel', tag: 'Travel', title: '여행 감성',
       img: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&q=80',
       mode: 'editable',
       prompt: '유럽 풍경을 배경으로 한 자연스러운 여행 스냅, 황금 시간대 따뜻한 빛' },
-    { id: 'restore', tag: 'Restore', title: '옛날 사진 복원',
-      img: 'styles/restore.jpg',
-      mode: 'dual',
-      primaryLabel: '컬러로 복원',
-      secondaryLabel: '흑백으로 복원',
-      prompt: `Colorize and restore this old black and white photo.
-Transform it into a modern, ultra-clear photograph.
-Add natural and realistic colors, enhance facial details,
-remove scratches, dust, and blur.
-High dynamic range, sharp focus, 4K resolution, professional studio quality.
-keep the original face and identity exactly the same`,
-      promptSecondary: `This is an old damaged black-and-white photo.
-Restore the photo by removing scratches, dust, stains, and tears.
-Enhance facial details, sharpen the focus, improve contrast and clarity.
-Keep it as a realistic high-resolution black-and-white photograph.
-Preserve the original historical feeling and natural textures.
-keep the original face and identity exactly the same` },
   ];
 
   /* =========================== Gemini (서버리스 프록시) =========================== */
