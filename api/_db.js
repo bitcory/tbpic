@@ -46,9 +46,13 @@ export async function ensureSchema() {
       style_id    TEXT,
       ok          BOOLEAN NOT NULL,
       error       TEXT,
+      image_data  TEXT,
+      image_mime  TEXT,
       created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
     CREATE INDEX IF NOT EXISTS idx_gen_user_time ON generations(kakao_id, created_at DESC);
+    ALTER TABLE generations ADD COLUMN IF NOT EXISTS image_data TEXT;
+    ALTER TABLE generations ADD COLUMN IF NOT EXISTS image_mime TEXT;
 
     CREATE TABLE IF NOT EXISTS charge_requests (
       id             BIGSERIAL PRIMARY KEY,
@@ -136,12 +140,31 @@ export async function refundQuota(kakaoId) {
   );
 }
 
-export async function logGeneration({ kakaoId, styleId, ok, error }) {
+export async function logGeneration({ kakaoId, styleId, ok, error, imageData, imageMime }) {
   const pool = getPool();
   await pool.query(
-    `INSERT INTO generations (kakao_id, style_id, ok, error) VALUES ($1, $2, $3, $4)`,
-    [String(kakaoId), styleId || null, !!ok, error ? String(error).slice(0, 500) : null]
+    `INSERT INTO generations (kakao_id, style_id, ok, error, image_data, image_mime)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+    [
+      String(kakaoId),
+      styleId || null,
+      !!ok,
+      error ? String(error).slice(0, 500) : null,
+      imageData || null,
+      imageMime || null,
+    ]
   );
+}
+
+export async function getGenerationImage(id, kakaoId) {
+  await ensureSchema();
+  const pool = getPool();
+  const { rows } = await pool.query(
+    `SELECT image_data, image_mime FROM generations
+      WHERE id = $1 AND kakao_id = $2`,
+    [parseInt(id, 10), String(kakaoId)]
+  );
+  return rows[0] || null;
 }
 
 export async function listUsers({ limit = 100 } = {}) {
@@ -162,7 +185,9 @@ export async function listGenerations(kakaoId, { limit = 50 } = {}) {
   await ensureSchema();
   const pool = getPool();
   const { rows } = await pool.query(
-    `SELECT id, style_id, ok, error, created_at
+    `SELECT id, style_id, ok, error,
+            (image_data IS NOT NULL) AS has_image,
+            created_at
        FROM generations
       WHERE kakao_id = $1
       ORDER BY created_at DESC

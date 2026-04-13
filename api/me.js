@@ -21,7 +21,8 @@ export default async function handler(req, res) {
       lastLoginAt: user.last_login_at,
       lastUsedAt: user.last_used_at,
       history: history.map(h => ({
-        id: h.id, styleId: h.style_id, ok: h.ok, error: h.error, createdAt: h.created_at,
+        id: h.id, styleId: h.style_id, ok: h.ok, error: h.error,
+        hasImage: h.has_image, createdAt: h.created_at,
       })),
     });
   } catch (err) {

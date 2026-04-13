@@ -62,7 +62,10 @@ export default async function handler(req, res) {
       return res.status(502).json({ error: '이미지가 반환되지 않았습니다' });
     }
     const outMime = blob.mime_type || blob.mimeType || 'image/png';
-    await logGeneration({ kakaoId, styleId, ok: true });
+    await logGeneration({
+      kakaoId, styleId, ok: true,
+      imageData: blob.data, imageMime: outMime,
+    });
     return res.status(200).json({
       dataUrl: `data:${outMime};base64,${blob.data}`,
       remaining: Math.max(reservation.quota - reservation.used, 0),

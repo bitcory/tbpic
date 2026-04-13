@@ -137,6 +137,86 @@
   .pill.bad { background: #FEE2E2; color: #B91C1C; }
   .empty { padding: 24px; text-align: center; color: #94A3B8; font-size: 13px; }
 
+  /* Gallery */
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .g-item {
+    position: relative;
+    aspect-ratio: 3/4;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #1E293B;
+    cursor: pointer;
+  }
+  .g-item img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .g-item .g-dl {
+    position: absolute;
+    bottom: 6px; right: 6px;
+    width: 28px; height: 28px;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.6);
+    border: none;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+  }
+  .g-item .g-dl svg { width: 14px; height: 14px; color: #fff; }
+
+  /* Logout */
+  .logout-row {
+    margin: 24px 18px 40px;
+    text-align: center;
+  }
+  .logout-btn {
+    padding: 12px 24px;
+    border-radius: 12px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    color: #DC2626;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* Image viewer modal */
+  .viewer-bg {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.92);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200;
+    padding: 20px;
+  }
+  .viewer-bg img {
+    max-width: 100%; max-height: calc(100vh - 100px);
+    border-radius: 12px;
+  }
+  .viewer-actions {
+    position: absolute;
+    bottom: env(safe-area-inset-bottom, 20px);
+    left: 0; right: 0;
+    padding: 20px;
+    display: flex; gap: 10px; justify-content: center;
+  }
+  .viewer-actions button {
+    padding: 12px 20px;
+    border-radius: 12px;
+    border: none;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .v-close { background: rgba(255,255,255,0.15); color: #fff; }
+  .v-down { background: #00996D; color: #fff; }
+
   /* Admin section */
   .admin-section { margin: 24px 18px 40px; }
   .users-table {
@@ -392,10 +472,21 @@
       </div>
 
       <div class="section">
-        <h2>최근 생성 내역</h2>
+        <h2>📸 내가 만든 사진</h2>
+        <div class="gallery" id="gallery">
+          <div class="empty" style="grid-column:1/-1">아직 생성한 사진이 없습니다</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>생성 내역</h2>
         <div class="history" id="historyList">
           <div class="empty">아직 생성한 사진이 없습니다</div>
         </div>
+      </div>
+
+      <div class="logout-row">
+        <button class="logout-btn" id="logoutBtn">로그아웃</button>
       </div>
 
       <!-- 어드민 전용 -->
@@ -411,6 +502,15 @@
           <div class="empty">불러오는 중...</div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- 이미지 뷰어 -->
+  <div id="viewerBg" class="viewer-bg hidden">
+    <img id="viewerImg" alt="" />
+    <div class="viewer-actions">
+      <button class="v-close" id="viewerClose">닫기</button>
+      <button class="v-down" id="viewerDown">다운로드</button>
     </div>
   </div>
 
@@ -452,7 +552,13 @@
     </div>
   </div>
 
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js"></script>
 <script>
+  if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
+    Kakao.init('67fe23c74498728b9a97329ccd77952e');
+    const tk = localStorage.getItem('tbpic_token');
+    if (tk) try { Kakao.Auth.setAccessToken(tk); } catch (_) {}
+  }
   const userStr = localStorage.getItem('tbpic_user');
   let kakaoUser = null;
   try { kakaoUser = userStr ? JSON.parse(userStr) : null; } catch (_) {}
@@ -493,6 +599,8 @@
     { size: 30, price: 5900, original: 14700, off: 60 },
   ];
 
+  let isAdminMode = false;
+
   async function init() {
     try {
       const me = await api('/api/me');
@@ -500,6 +608,7 @@
       renderPackages();
       await loadMyChargeStatus();
       if (me.isAdmin) {
+        isAdminMode = true;
         document.getElementById('adminWrap').classList.remove('hidden');
         document.getElementById('pBadge').classList.remove('hidden');
         await loadUsers();
@@ -509,6 +618,32 @@
       alert('데이터 로딩 실패: ' + err.message);
     }
   }
+
+  // 본인 정보만 갱신
+  async function refreshMe() {
+    try {
+      const me = await api('/api/me');
+      renderMe(me);
+      await loadMyChargeStatus();
+    } catch (_) {}
+  }
+
+  // 어드민 전체 갱신 (승인/거부/충전 후)
+  async function refreshAll() {
+    await refreshMe();
+    if (isAdminMode) {
+      await loadUsers();
+      await loadChargeRequests();
+    }
+  }
+
+  // 탭이 다시 활성화될 때 자동 갱신
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') refreshMe();
+  });
+
+  // 30초마다 본인 정보 자동 갱신 (충전 승인 자동 반영)
+  setInterval(refreshMe, 30000);
 
   function renderPackages() {
     const wrap = document.getElementById('packages');
@@ -611,8 +746,7 @@
               method: 'POST',
               body: { id, action },
             });
-            await loadChargeRequests();
-            await loadUsers();
+            await refreshAll();
           } catch (err) {
             alert('실패: ' + err.message);
           }
@@ -646,7 +780,74 @@
         </div>
       `).join('');
     }
+
+    // Gallery
+    const gallery = document.getElementById('gallery');
+    const withImage = (me.history || []).filter(h => h.ok && h.hasImage);
+    if (!withImage.length) {
+      gallery.innerHTML = '<div class="empty" style="grid-column:1/-1">아직 생성한 사진이 없습니다</div>';
+    } else {
+      gallery.innerHTML = withImage.map(h => {
+        const url = `/api/image?id=${h.id}&k=${encodeURIComponent(kakaoUser.id)}`;
+        return `
+          <div class="g-item" data-id="${h.id}">
+            <img src="${url}" loading="lazy" alt="" />
+            <button class="g-dl" data-act="dl" aria-label="다운로드">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>
+              </svg>
+            </button>
+          </div>`;
+      }).join('');
+      gallery.querySelectorAll('.g-item').forEach(el => {
+        const id = el.dataset.id;
+        el.querySelector('.g-dl').addEventListener('click', e => {
+          e.stopPropagation();
+          downloadImage(id);
+        });
+        el.addEventListener('click', () => openViewer(id));
+      });
+    }
   }
+
+  function downloadImage(id) {
+    const url = `/api/image?id=${id}&k=${encodeURIComponent(kakaoUser.id)}&dl=1`;
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `tbpic-${id}.png`;
+    a.click();
+  }
+
+  function openViewer(id) {
+    const url = `/api/image?id=${id}&k=${encodeURIComponent(kakaoUser.id)}`;
+    document.getElementById('viewerImg').src = url;
+    document.getElementById('viewerBg').classList.remove('hidden');
+    document.getElementById('viewerDown').onclick = () => downloadImage(id);
+  }
+  document.getElementById('viewerClose').addEventListener('click', () => {
+    document.getElementById('viewerBg').classList.add('hidden');
+    document.getElementById('viewerImg').src = '';
+  });
+  document.getElementById('viewerBg').addEventListener('click', e => {
+    if (e.target.id === 'viewerBg') {
+      document.getElementById('viewerBg').classList.add('hidden');
+      document.getElementById('viewerImg').src = '';
+    }
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    if (!confirm('로그아웃 하시겠어요?')) return;
+    try {
+      // Kakao SDK 로드돼 있으면 로그아웃 시도 (메인페이지에서 로드됨)
+      if (window.Kakao?.Auth?.getAccessToken) {
+        await Kakao.Auth.logout();
+      }
+    } catch (_) {}
+    localStorage.removeItem('tbpic_user');
+    localStorage.removeItem('tbpic_token');
+    localStorage.removeItem('tbpic_quota');
+    location.href = '/';
+  });
 
   async function loadUsers() {
     const { users } = await api('/api/admin/users');
@@ -700,7 +901,7 @@
         if (btn.dataset.act === 'unblock') payload.isBlocked = false;
         try {
           await api('/api/admin/adjust', { method: 'POST', body: payload });
-          await loadUsers();
+          await refreshAll();
         } catch (err) {
           alert('실패: ' + err.message);
         }
