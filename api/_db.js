@@ -103,7 +103,7 @@ export async function getUser(kakaoId) {
   await ensureSchema();
   const pool = getPool();
   const { rows } = await pool.query(
-    `SELECT kakao_id, nickname, profile_image, quota, used, is_blocked,
+    `SELECT kakao_id, nickname, profile_image, quota, used, is_blocked, is_admin,
             created_at, last_login_at, last_used_at
        FROM users WHERE kakao_id = $1`,
     [String(kakaoId)]
