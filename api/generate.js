@@ -1,8 +1,9 @@
 // Vercel Serverless Function — proxies image generation to Gemini.
 // Keeps GEMINI_API_KEY server-side. Enforces per-user quota via Postgres.
-import { reserveQuota, refundQuota, logGeneration, getUser } from './_db.js';
+import { reserveQuota, refundQuota, logGeneration, getUser, countSavedImages } from './_db.js';
 
 const MODEL = 'gemini-3.1-flash-image-preview';
+const SAVED_LIMIT = 20;
 
 export const config = {
   api: { bodyParser: { sizeLimit: '12mb' } },
@@ -17,6 +18,15 @@ export default async function handler(req, res) {
   const { kakaoId, styleId, prompt, imageBase64, mimeType } = req.body || {};
   if (!kakaoId) return res.status(401).json({ error: '로그인이 필요합니다' });
   if (!prompt || !imageBase64) return res.status(400).json({ error: 'prompt와 imageBase64는 필수입니다' });
+
+  // 1a) check saved image storage limit
+  const savedCount = await countSavedImages(kakaoId);
+  if (savedCount >= SAVED_LIMIT) {
+    return res.status(409).json({
+      error: `사진 보관함이 가득 찼어요 (${savedCount}/${SAVED_LIMIT}장).\n마이페이지에서 다운로드 후 오래된 사진을 삭제해주세요.`,
+      savedCount, savedLimit: SAVED_LIMIT,
+    });
+  }
 
   // 1) reserve a quota slot atomically
   const reservation = await reserveQuota(kakaoId);

@@ -1,4 +1,6 @@
-import { getUser, listGenerations } from './_db.js';
+import { getUser, listGenerations, countSavedImages } from './_db.js';
+
+const SAVED_LIMIT = 20;
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
@@ -8,6 +10,7 @@ export default async function handler(req, res) {
     const user = await getUser(kakaoId);
     if (!user) return res.status(404).json({ error: '사용자를 찾을 수 없습니다' });
     const history = await listGenerations(kakaoId, { limit: 30 });
+    const savedCount = await countSavedImages(kakaoId);
     return res.status(200).json({
       kakaoId: user.kakao_id,
       nickname: user.nickname,
@@ -20,6 +23,8 @@ export default async function handler(req, res) {
       createdAt: user.created_at,
       lastLoginAt: user.last_login_at,
       lastUsedAt: user.last_used_at,
+      savedCount,
+      savedLimit: SAVED_LIMIT,
       history: history.map(h => ({
         id: h.id, styleId: h.style_id, ok: h.ok, error: h.error,
         hasImage: h.has_image, createdAt: h.created_at,

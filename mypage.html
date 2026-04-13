@@ -156,9 +156,12 @@
     object-fit: cover;
     display: block;
   }
-  .g-item .g-dl {
+  .g-actions {
     position: absolute;
     bottom: 6px; right: 6px;
+    display: flex; gap: 4px;
+  }
+  .g-actions button {
     width: 28px; height: 28px;
     border-radius: 999px;
     background: rgba(0,0,0,0.6);
@@ -167,7 +170,33 @@
     cursor: pointer;
     backdrop-filter: blur(8px);
   }
-  .g-item .g-dl svg { width: 14px; height: 14px; color: #fff; }
+  .g-actions button svg { width: 14px; height: 14px; color: #fff; }
+  .g-actions .g-del { background: rgba(220,38,38,0.85); }
+
+  .storage-banner {
+    background: #FEF3C7;
+    border: 1px solid #FCD34D;
+    color: #78350F;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 13px;
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  .storage-banner.full {
+    background: #FEE2E2;
+    border-color: #FCA5A5;
+    color: #991B1B;
+  }
+  .storage-count {
+    font-size: 12px; color: #64748B; font-weight: 700;
+  }
+  iconify-icon { display: inline-block; vertical-align: -3px; }
+  .ico { vertical-align: -3px; margin-right: 6px; color: #00996D; font-size: 20px; }
+  .ico-warn { color: #B45309; }
+  .ico-bad { color: #DC2626; }
+  .ico-tip { color: #2563EB; }
+  .ico-event { color: #DC2626; font-size: 16px; vertical-align: -2px; margin-right: 4px; }
 
   /* Logout (header) */
   .top-spacer { flex: 1; }
@@ -467,13 +496,17 @@
       </div>
 
       <div class="section">
-        <h2>📷 사진 충전하기</h2>
-        <div style="font-size:12px;color:#EF4444;font-weight:700;margin-bottom:10px;">🎉 OPEN EVENT · 정상가 60% 할인</div>
+        <h2><iconify-icon class="ico" icon="ph:camera-fill"></iconify-icon>사진 충전하기</h2>
+        <div style="font-size:12px;color:#EF4444;font-weight:700;margin-bottom:10px;"><iconify-icon class="ico-event" icon="ph:gift-fill"></iconify-icon>OPEN EVENT · 정상가 60% 할인</div>
         <div class="packages" id="packages"></div>
       </div>
 
       <div class="section">
-        <h2>📸 내가 만든 사진</h2>
+        <h2 style="display:flex;justify-content:space-between;align-items:baseline;">
+          <span><iconify-icon class="ico" icon="ph:images-fill"></iconify-icon>내가 만든 사진</span>
+          <span class="storage-count" id="storageCount"></span>
+        </h2>
+        <div id="storageBanner"></div>
         <div class="gallery" id="gallery">
           <div class="empty" style="grid-column:1/-1">아직 생성한 사진이 없습니다</div>
         </div>
@@ -488,7 +521,7 @@
 
       <!-- 어드민 전용 -->
       <div id="adminWrap" class="admin-section hidden">
-        <h2 style="margin:0 0 12px;font-size:18px;font-weight:800;">💰 충전 요청 관리</h2>
+        <h2 style="margin:0 0 12px;font-size:18px;font-weight:800;"><iconify-icon class="ico" icon="ph:wallet-fill"></iconify-icon>충전 요청 관리</h2>
         <div class="users-table" id="chargeTable">
           <div class="empty">요청이 없습니다</div>
         </div>
@@ -525,7 +558,7 @@
       </div>
 
       <a href="https://qr.kakaopay.com/Ej7psYtxY" target="_blank" rel="noopener" class="kakao-pay-btn">
-        💛 카카오페이로 송금하기
+        <iconify-icon icon="ph:chat-circle-text-fill" style="font-size:20px;vertical-align:-4px;margin-right:4px;"></iconify-icon>카카오페이로 송금하기
       </a>
 
       <div class="pay-row">
@@ -538,7 +571,7 @@
       </div>
 
       <div class="step-info">
-        💡 입금 시 카카오 닉네임으로 보내주시면 빠르게 확인됩니다.<br/>
+        <iconify-icon class="ico-tip" icon="ph:lightbulb-fill" style="font-size:16px;vertical-align:-2px;margin-right:4px;"></iconify-icon>입금 시 카카오 닉네임으로 보내주시면 빠르게 확인됩니다.<br/>
         평일 영업시간 내 1시간 이내, 야간/주말은 다음날 처리됩니다.
       </div>
 
@@ -549,6 +582,7 @@
     </div>
   </div>
 
+<script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js"></script>
 <script>
   if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
@@ -781,6 +815,19 @@
     // Gallery
     const gallery = document.getElementById('gallery');
     const withImage = (me.history || []).filter(h => h.ok && h.hasImage);
+    const limit = me.savedLimit || 20;
+    const count = me.savedCount ?? withImage.length;
+
+    document.getElementById('storageCount').textContent = `${count} / ${limit}`;
+    const banner = document.getElementById('storageBanner');
+    if (count >= limit) {
+      banner.innerHTML = `<div class="storage-banner full"><iconify-icon class="ico-bad" icon="ph:warning-circle-fill" style="font-size:18px;vertical-align:-3px;margin-right:6px;"></iconify-icon>보관함이 가득 찼어요! 사진을 다운로드하시고 오래된 사진을 삭제해야 새로운 사진을 만들 수 있습니다.</div>`;
+    } else if (count >= limit - 2) {
+      banner.innerHTML = `<div class="storage-banner"><iconify-icon class="ico-warn" icon="ph:warning-fill" style="font-size:18px;vertical-align:-3px;margin-right:6px;"></iconify-icon>보관 한도가 얼마 남지 않았어요 (${count}/${limit}). 다운로드 후 정리해주세요.</div>`;
+    } else {
+      banner.innerHTML = '';
+    }
+
     if (!withImage.length) {
       gallery.innerHTML = '<div class="empty" style="grid-column:1/-1">아직 생성한 사진이 없습니다</div>';
     } else {
@@ -789,11 +836,18 @@
         return `
           <div class="g-item" data-id="${h.id}">
             <img src="${url}" loading="lazy" alt="" />
-            <button class="g-dl" data-act="dl" aria-label="다운로드">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>
-              </svg>
-            </button>
+            <div class="g-actions">
+              <button class="g-del" data-act="del" aria-label="삭제">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M6 6l1 14a2 2 0 002 2h6a2 2 0 002-2l1-14"/>
+                </svg>
+              </button>
+              <button class="g-dl" data-act="dl" aria-label="다운로드">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>
+                </svg>
+              </button>
+            </div>
           </div>`;
       }).join('');
       gallery.querySelectorAll('.g-item').forEach(el => {
@@ -801,6 +855,14 @@
         el.querySelector('.g-dl').addEventListener('click', e => {
           e.stopPropagation();
           downloadImage(id);
+        });
+        el.querySelector('.g-del').addEventListener('click', async e => {
+          e.stopPropagation();
+          if (!confirm('이 사진을 삭제할까요? (복구 불가)')) return;
+          try {
+            await api(`/api/image?id=${id}`, { method: 'DELETE' });
+            await refreshMe();
+          } catch (err) { alert('삭제 실패: ' + err.message); }
         });
         el.addEventListener('click', () => openViewer(id));
       });

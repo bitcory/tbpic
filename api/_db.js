@@ -167,6 +167,27 @@ export async function getGenerationImage(id, kakaoId) {
   return rows[0] || null;
 }
 
+export async function countSavedImages(kakaoId) {
+  await ensureSchema();
+  const pool = getPool();
+  const { rows } = await pool.query(
+    `SELECT COUNT(*)::int AS c FROM generations
+      WHERE kakao_id = $1 AND image_data IS NOT NULL`,
+    [String(kakaoId)]
+  );
+  return rows[0]?.c || 0;
+}
+
+export async function deleteGeneration(id, kakaoId) {
+  await ensureSchema();
+  const pool = getPool();
+  const { rowCount } = await pool.query(
+    `DELETE FROM generations WHERE id = $1 AND kakao_id = $2`,
+    [parseInt(id, 10), String(kakaoId)]
+  );
+  return rowCount > 0;
+}
+
 export async function listUsers({ limit = 100 } = {}) {
   await ensureSchema();
   const pool = getPool();
