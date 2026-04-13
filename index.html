@@ -737,6 +737,10 @@ Enhance facial details, sharpen the focus, improve contrast and clarity.
 Keep it as a realistic high-resolution black-and-white photograph.
 Preserve the original historical feeling and natural textures.
 keep the original face and identity exactly the same` },
+    { id: 'custom', tag: 'Custom', title: '내맘대로 사진 변경',
+      img: 'styles/custom.jpg',
+      mode: 'custom',
+      prompt: '' },
     { id: 'bw', tag: 'B&W', title: '흑백 사진',
       img: 'styles/bw.jpg',
       mode: 'preset',
@@ -885,12 +889,19 @@ Captured with a Canon EOS R5 full-frame DSLR, 85mm f/1.8 lens for crisp detail, 
       autoLabel.textContent = currentStyle.secondaryLabel || '대안 생성';
       generateLabel.textContent = currentStyle.primaryLabel || '사진 생성하기';
       promptInput.value = '';
+    } else if (currentStyle.mode === 'custom') {
+      promptBox.classList.remove('hidden');
+      autoBtn.classList.add('hidden');
+      generateLabel.textContent = '사진 변경하기';
+      promptInput.value = '';
+      promptInput.placeholder = '예) 배경을 카페로 바꿔주세요\n예) 정장으로 옷을 갈아입혀주세요\n예) 봄꽃이 핀 공원에서 찍은 것처럼 만들어주세요';
     } else {
       promptBox.classList.remove('hidden');
       autoBtn.classList.remove('hidden');
       autoLabel.textContent = '자동 생성';
       generateLabel.textContent = '사진 생성하기';
       promptInput.value = currentStyle.prompt;
+      promptInput.placeholder = '원하는 스타일을 자유롭게 적어주세요. 예) 부드러운 자연광, 파스텔톤, 영화같은 분위기';
     }
     resetUpload();
     viewMain.classList.add('is-out-left');
@@ -1021,7 +1032,16 @@ Captured with a Canon EOS R5 full-frame DSLR, 85mm f/1.8 lens for crisp detail, 
   }
 
   generateBtn.addEventListener('click', () => {
-    // preset 모드는 항상 고정 프롬프트, editable은 사용자 입력 우선
+    if (currentStyle.mode === 'custom') {
+      const userText = promptInput.value.trim();
+      if (!userText) {
+        alert('어떻게 변경하고 싶은지 입력해주세요');
+        promptInput.focus();
+        return;
+      }
+      callGenerate(userText);
+      return;
+    }
     const text = currentStyle.mode === 'preset'
       ? currentStyle.prompt
       : (promptInput.value.trim() || currentStyle.prompt);
