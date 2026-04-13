@@ -279,7 +279,21 @@
     display: flex;
     justify-content: center;
     gap: 6px;
-    padding: 14px 0 18px;
+    padding: 14px 0 6px;
+  }
+  .notice {
+    flex: 0 0 auto;
+    text-align: center;
+    font-size: 12px;
+    color: #94A3B8;
+    padding: 4px 24px 16px;
+    line-height: 1.5;
+  }
+  .notice svg {
+    width: 14px; height: 14px;
+    vertical-align: -2px;
+    margin-right: 4px;
+    color: #CBD5E1;
   }
   .dot {
     width: 8px; height: 8px;
@@ -522,6 +536,12 @@
       </div>
 
       <div class="dots" id="dots"></div>
+      <div class="notice">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+        </svg>
+        AI 생성 결과물은 원본과 일부 차이가 있을 수 있습니다
+      </div>
     </section>
 
     <!-- =============== DETAIL VIEW =============== -->
@@ -699,10 +719,28 @@ Background: Light neutral gray studio backdrop with a subtle gradient, smooth an
 Lighting: Soft professional studio lighting, even front-facing key light, balanced exposure with gentle fill light to remove any harsh shadows.
 Pose: Perfectly centered frontal portrait, head facing directly forward, eyes looking straight into the camera with a neutral and calm expression.
 Camera: High-resolution photography, sharp focus on facial details, 85mm lens for natural proportions. Style: Photorealistic, clean, luxury beauty studio aesthetic, ID photo precision with high-end skin texture preservation.` },
-    { id: 'studio', tag: 'Studio', title: '스튜디오 조명',
-      img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=80',
-      mode: 'editable',
-      prompt: '드라마틱한 측면 조명, 어두운 배경, 깊은 음영의 시네마틱 인물 사진' },
+    { id: 'bw', tag: 'B&W', title: '흑백 사진',
+      img: 'styles/bw.jpg',
+      mode: 'preset',
+      prompt: `Use the attached image of the model as facial reference and physical features.
+
+Black and white high-fashion editorial portrait of uploaded person, wearing a loose white shirt with an open collar.
+
+The model poses with arms crossed naturally in front of the chest, creating a confident and relaxed expression.
+
+Style: high-fashion editorial in monochrome.
+
+Gaze: The gaze is intense and captivating, directed toward the camera, exuding a bright, genuine smile aura.
+
+Background: minimalist plain wall with sharp natural daylight casting defined shadows, adding depth and contrast.
+
+Lighting: harsh natural sunlight, high-contrast setup highlighting facial contours, sharp bone structure, and texture of the hair and fabric.
+
+Pose: confident and natural, arms crossed comfortably, emphasizing poise and editorial sophistication.
+
+Camera: eye-level angle, close-up framing focusing on facial expression, texture, and dramatic shadow play.
+
+Captured with a Canon EOS R5 full-frame DSLR, 85mm f/1.8 lens for crisp detail, tonal depth, and fine grain.` },
     { id: 'wedding', tag: 'Wedding', title: '웨딩 스냅',
       img: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80',
       mode: 'editable',
