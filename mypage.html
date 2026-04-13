@@ -169,21 +169,20 @@
   }
   .g-item .g-dl svg { width: 14px; height: 14px; color: #fff; }
 
-  /* Logout */
-  .logout-row {
-    margin: 24px 18px 40px;
-    text-align: center;
-  }
+  /* Logout (header) */
+  .top-spacer { flex: 1; }
   .logout-btn {
-    padding: 12px 24px;
-    border-radius: 12px;
+    padding: 8px 14px;
+    height: 36px;
+    border-radius: 10px;
     background: #FFFFFF;
     border: 1px solid #E2E8F0;
     color: #DC2626;
     font-family: inherit;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     cursor: pointer;
+    flex: 0 0 auto;
   }
 
   /* Image viewer modal */
@@ -429,6 +428,8 @@
         </svg>
       </button>
       <h1>마이페이지</h1>
+      <div class="top-spacer"></div>
+      <button class="logout-btn" id="logoutBtn">로그아웃</button>
     </div>
 
     <div id="needLogin" class="login-needed hidden">
@@ -483,10 +484,6 @@
         <div class="history" id="historyList">
           <div class="empty">아직 생성한 사진이 없습니다</div>
         </div>
-      </div>
-
-      <div class="logout-row">
-        <button class="logout-btn" id="logoutBtn">로그아웃</button>
       </div>
 
       <!-- 어드민 전용 -->
