@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#016837" />
+<title>우리동네사진관</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;700;800&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    height: 100%;
+    font-family: 'Noto Sans KR', 'Urbanist', -apple-system, system-ui, sans-serif;
+    background: #F1F5F9;
+    color: #1E293B;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+    max-width: 480px;
+    margin: 0 auto;
+    position: relative;
+    background: linear-gradient(180deg, #F8FAFC 0%, #EEF2F7 100%);
+    overflow: hidden;
+  }
+  .hidden { display: none !important; }
+
+  /* ---------- View transitions ---------- */
+  .view {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+    transition: transform 0.32s cubic-bezier(.2,.8,.2,1), opacity 0.32s ease;
+  }
+  .view.is-out-left { transform: translateX(-12%); opacity: 0; pointer-events: none; }
+  .view.is-out-right { transform: translateX(100%); opacity: 0; pointer-events: none; }
+
+  /* ---------- Header ---------- */
+  header {
+    flex: 0 0 auto;
+    padding: 16px 20px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .logo {
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #00B380 0%, #016837 100%);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 18px -6px rgba(1,104,55,0.5);
+    flex: 0 0 auto;
+  }
+  .logo svg { width: 26px; height: 26px; }
+  .brand-text h1 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #0F172A;
+  }
+  .brand-text p {
+    margin: 2px 0 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+  }
+
+  .kakao-btn {
+    height: 48px;
+    padding: 0 18px;
+    border: none;
+    border-radius: 14px;
+    background: #FEE500;
+    color: #181600;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px -4px rgba(254,229,0,0.6);
+    flex: 0 0 auto;
+  }
+  .kakao-btn svg { width: 20px; height: 20px; }
+  .profile-btn {
+    width: 48px; height: 48px;
+    border-radius: 999px;
+    border: 2px solid #FFFFFF;
+    background: #E2E8F0 center/cover no-repeat;
+    cursor: pointer;
+    box-shadow: 0 4px 10px -4px rgba(15,23,42,0.25);
+    flex: 0 0 auto;
+  }
+  .icon-btn {
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .icon-btn svg { width: 22px; height: 22px; color: #334155; }
+
+  /* ---------- Section title ---------- */
+  .section-head {
+    flex: 0 0 auto;
+    padding: 8px 22px 10px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .section-head h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #0F172A;
+  }
+  .section-head span {
+    font-size: 13px;
+    font-weight: 700;
+    color: #00996D;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* ---------- Card scroller (Main) ---------- */
+  .scroller-wrap {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    align-items: stretch;
+    padding: 4px 0 0;
+  }
+  .scroller {
+    display: flex;
+    gap: 14px;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    align-items: stretch;
+  }
+  .scroller::-webkit-scrollbar { display: none; }
+  .scroller::before,
+  .scroller::after {
+    content: '';
+    flex: 0 0 6%;
+  }
+  .card {
+    flex: 0 0 auto;
+    width: 88%;
+    max-width: 380px;
+    height: 100%;
+    border-radius: 24px;
+    position: relative;
+    overflow: hidden;
+    scroll-snap-align: center;
+    background: #1E293B;
+    box-shadow:
+      0 18px 36px -18px rgba(15,23,42,0.35),
+      0 4px 10px -4px rgba(15,23,42,0.15);
+    transform: scale(0.94);
+    transition: transform 0.4s cubic-bezier(.2,.8,.2,1);
+    will-change: transform;
+    cursor: pointer;
+  }
+  .card.is-active { transform: scale(1); }
+  .card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.55) 100%);
+    z-index: 1;
+  }
+  .card img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .card-meta {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 16px 18px 18px;
+    z-index: 2;
+    color: #fff;
+  }
+  .card-tag {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.22);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .card-title {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  /* ---------- Dots ---------- */
+  .dots {
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    padding: 14px 0 18px;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 999px;
+    background: #CBD5E1;
+    transition: all 0.3s ease;
+  }
+  .dot.is-active {
+    width: 28px;
+    background: linear-gradient(90deg, #00B380, #016837);
+  }
+
+  /* ---------- Detail view ---------- */
+  .detail-header {
+    flex: 0 0 auto;
+    padding: 14px 18px 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .back-btn {
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    flex: 0 0 auto;
+  }
+  .back-btn svg { width: 24px; height: 24px; color: #334155; }
+  .detail-title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #0F172A;
+  }
+
+  .detail-body {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 8px 18px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .detail-body::-webkit-scrollbar { display: none; }
+
+  /* upload swipe area */
+  .upload-area {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border-radius: 20px;
+    background: #F1F5F9;
+    border: 2px dashed #CBD5E1;
+    overflow: hidden;
+    flex: 0 0 auto;
+  }
+  .upload-area input[type=file] { display: none; }
+  .upload-track {
+    display: flex;
+    width: 100%; height: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .upload-track::-webkit-scrollbar { display: none; }
+  .upload-slide {
+    flex: 0 0 100%;
+    width: 100%; height: 100%;
+    position: relative;
+    scroll-snap-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .upload-slide img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  .upload-empty {
+    color: #475569;
+    text-align: center;
+    padding: 28px;
+  }
+  .upload-empty svg { width: 48px; height: 48px; margin-bottom: 12px; color: #94A3B8; }
+  .upload-empty p { margin: 0; font-size: 17px; font-weight: 700; }
+  .upload-empty span { display: block; margin-top: 6px; font-size: 14px; color: #64748B; }
+
+  .slide-label {
+    position: absolute;
+    top: 14px; left: 14px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: rgba(15,23,42,0.78);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 2;
+  }
+  .slide-actions {
+    position: absolute;
+    bottom: 14px; right: 14px;
+    display: flex; gap: 8px;
+    z-index: 2;
+  }
+  .mini-btn {
+    height: 40px; padding: 0 16px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.95);
+    border: none;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    color: #0F172A;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .upload-dots {
+    position: absolute;
+    bottom: 10px; left: 0; right: 0;
+    display: flex; justify-content: center; gap: 5px;
+    z-index: 2;
+  }
+  .upload-dots .dot { width: 6px; height: 6px; background: rgba(255,255,255,0.7); }
+  .upload-dots .dot.is-active { width: 18px; background: #fff; }
+
+  /* prompt */
+  .prompt-box {
+    flex: 0 0 auto;
+    background: #FFFFFF;
+    border-radius: 18px;
+    padding: 16px 18px;
+    border: 1px solid #E2E8F0;
+  }
+  .prompt-box label {
+    display: block;
+    font-size: 14px;
+    font-weight: 800;
+    color: #334155;
+    margin-bottom: 8px;
+  }
+  .prompt-box textarea {
+    width: 100%;
+    min-height: 80px;
+    border: none;
+    outline: none;
+    resize: none;
+    font-family: inherit;
+    font-size: 17px;
+    color: #0F172A;
+    background: transparent;
+    line-height: 1.5;
+  }
+  .prompt-box textarea::placeholder { color: #94A3B8; font-size: 16px; }
+
+  /* action row */
+  .action-row {
+    flex: 0 0 auto;
+    display: flex; gap: 12px;
+    padding: 14px 18px calc(18px + env(safe-area-inset-bottom));
+  }
+  .action-btn {
+    flex: 1 1 0;
+    height: 64px;
+    border: none;
+    border-radius: 20px;
+    font-family: inherit;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: transform 0.15s ease;
+  }
+  .action-btn:active { transform: translateY(1px) scale(0.99); }
+  .action-btn svg { width: 22px; height: 22px; }
+  .action-btn.primary {
+    background: linear-gradient(112deg, #68D970 -20%, #00996D 80%);
+    color: #fff;
+    box-shadow: 0 12px 24px -10px rgba(0,153,109,0.55);
+  }
+  .action-btn.secondary {
+    background: #FFFFFF;
+    color: #00996D;
+    border: 2px solid #00996D;
+  }
+  .action-btn:disabled {
+    background: #E2E8F0; color: #94A3B8;
+    border: none; box-shadow: none;
+    cursor: not-allowed;
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- =============== MAIN VIEW =============== -->
+    <section class="view" id="viewMain">
+      <header>
+        <div class="brand">
+          <div class="logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 8a2 2 0 0 1 2-2h2l2-2h6l2 2h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <h1>우리동네사진관</h1>
+            <p>AI로 만드는 나만의 인생샷</p>
+          </div>
+        </div>
+        <button class="kakao-btn" id="kakaoLoginBtn" aria-label="카카오 로그인">
+          <svg viewBox="0 0 24 24" fill="#181600" aria-hidden="true">
+            <path d="M12 3C6.5 3 2 6.6 2 11c0 2.8 1.9 5.3 4.7 6.7-.2.7-.7 2.7-.8 3.1-.1.5.2.5.4.4.2-.1 2.6-1.8 3.6-2.5.7.1 1.4.2 2.1.2 5.5 0 10-3.6 10-8s-4.5-8-10-8z"/>
+          </svg>
+          로그인
+        </button>
+        <button class="profile-btn hidden" id="profileBtn" aria-label="프로필"></button>
+      </header>
+
+      <div class="section-head">
+        <h2>스타일 선택</h2>
+        <span id="styleCount">5 styles</span>
+      </div>
+
+      <div class="scroller-wrap">
+        <div class="scroller" id="scroller"></div>
+      </div>
+
+      <div class="dots" id="dots"></div>
+    </section>
+
+    <!-- =============== DETAIL VIEW =============== -->
+    <section class="view is-out-right" id="viewDetail">
+      <div class="detail-header">
+        <button class="back-btn" id="backBtn" aria-label="뒤로">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </button>
+        <h2 class="detail-title" id="detailTitle">스타일</h2>
+      </div>
+
+      <div class="detail-body">
+        <div class="upload-area" id="uploadArea">
+          <input type="file" id="fileInput" accept="image/*" />
+          <div class="upload-track" id="uploadTrack">
+            <div class="upload-slide" id="slideOriginal">
+              <span class="slide-label">Before</span>
+              <div class="upload-empty" id="uploadEmpty">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="3"/>
+                  <circle cx="9" cy="9" r="2"/>
+                  <path d="M21 15l-5-5L5 21"/>
+                </svg>
+                <p>사진을 업로드하세요</p>
+                <span>탭하여 갤러리에서 선택</span>
+              </div>
+            </div>
+          </div>
+          <div class="upload-dots hidden" id="uploadDots"></div>
+        </div>
+
+        <div class="prompt-box">
+          <label for="promptInput">프롬프트</label>
+          <textarea id="promptInput" placeholder="원하는 스타일을 자유롭게 적어주세요. 예) 부드러운 자연광, 파스텔톤, 영화같은 분위기"></textarea>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="action-btn secondary" id="autoBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/>
+          </svg>
+          자동 생성
+        </button>
+        <button class="action-btn primary" id="generateBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12l5 5L20 7"/>
+          </svg>
+          사진 생성
+        </button>
+      </div>
+    </section>
+
+  </div>
+
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js"></script>
+<script>
+  /* =========================== Kakao Login =========================== */
+  const KAKAO_JS_KEY = '67fe23c74498728b9a97329ccd77952e';
+  if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
+    Kakao.init(KAKAO_JS_KEY);
+  }
+  const REDIRECT_URI = window.location.origin + window.location.pathname;
+  const loginBtn = document.getElementById('kakaoLoginBtn');
+  const profileBtn = document.getElementById('profileBtn');
+
+  function setLoggedIn(user) {
+    loginBtn.classList.add('hidden');
+    profileBtn.classList.remove('hidden');
+    const img = user?.properties?.profile_image
+             || user?.kakao_account?.profile?.profile_image_url;
+    if (img) profileBtn.style.backgroundImage = `url(${img})`;
+    profileBtn.title = user?.properties?.nickname || '';
+    localStorage.setItem('tbpic_user', JSON.stringify(user));
+  }
+  function setLoggedOut() {
+    loginBtn.classList.remove('hidden');
+    profileBtn.classList.add('hidden');
+    profileBtn.style.backgroundImage = '';
+    localStorage.removeItem('tbpic_user');
+    localStorage.removeItem('tbpic_token');
+  }
+  loginBtn.addEventListener('click', () => {
+    Kakao.Auth.authorize({
+      redirectUri: REDIRECT_URI,
+      scope: 'profile_nickname,profile_image',
+    });
+  });
+  profileBtn.addEventListener('click', async () => {
+    if (!confirm('로그아웃 할까요?')) return;
+    try { await Kakao.Auth.logout(); } catch (_) {}
+    setLoggedOut();
+  });
+  async function handleRedirectCallback() {
+    const url = new URL(window.location.href);
+    const code = url.searchParams.get('code');
+    const error = url.searchParams.get('error');
+    if (error) { history.replaceState({}, '', window.location.pathname); return; }
+    if (!code) return;
+    try {
+      const body = new URLSearchParams({
+        grant_type: 'authorization_code',
+        client_id: KAKAO_JS_KEY,
+        redirect_uri: REDIRECT_URI,
+        code,
+      });
+      const res = await fetch('https://kauth.kakao.com/oauth/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' },
+        body,
+      });
+      const data = await res.json();
+      if (!data.access_token) throw data;
+      Kakao.Auth.setAccessToken(data.access_token);
+      localStorage.setItem('tbpic_token', data.access_token);
+      const user = await Kakao.API.request({ url: '/v2/user/me' });
+      setLoggedIn(user);
+    } catch (err) {
+      alert('로그인 실패: ' + JSON.stringify(err));
+    } finally {
+      history.replaceState({}, '', window.location.pathname);
+    }
+  }
+  async function restoreSession() {
+    const token = localStorage.getItem('tbpic_token');
+    const cached = localStorage.getItem('tbpic_user');
+    if (!token) return;
+    Kakao.Auth.setAccessToken(token);
+    if (cached) { try { setLoggedIn(JSON.parse(cached)); return; } catch (_) {} }
+    try {
+      const user = await Kakao.API.request({ url: '/v2/user/me' });
+      setLoggedIn(user);
+    } catch (_) { localStorage.removeItem('tbpic_token'); }
+  }
+  (async () => {
+    if (window.location.search.includes('code=') ||
+        window.location.search.includes('error=')) {
+      await handleRedirectCallback();
+    } else {
+      await restoreSession();
+    }
+  })();
+
+  /* =========================== Styles =========================== */
+  const STYLES = [
+    { id: 'portrait', tag: 'Portrait', title: '프로필 사진',
+      img: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800&q=80',
+      prompt: '깔끔한 화이트 배경, 자연스러운 표정, 전문 스튜디오 조명의 증명사진' },
+    { id: 'vintage', tag: 'Vintage', title: '빈티지 필름',
+      img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&q=80',
+      prompt: '70년대 빈티지 필름 카메라 감성, 따뜻한 색감, 입자감 있는 그레인' },
+    { id: 'studio', tag: 'Studio', title: '스튜디오 조명',
+      img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=80',
+      prompt: '드라마틱한 측면 조명, 어두운 배경, 깊은 음영의 시네마틱 인물 사진' },
+    { id: 'wedding', tag: 'Wedding', title: '웨딩 스냅',
+      img: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80',
+      prompt: '로맨틱한 야외 웨딩 스냅, 부드러운 햇살, 화사한 화이트톤' },
+    { id: 'travel', tag: 'Travel', title: '여행 감성',
+      img: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&q=80',
+      prompt: '유럽 풍경을 배경으로 한 자연스러운 여행 스냅, 황금 시간대 따뜻한 빛' },
+  ];
+
+  /* =========================== Main view: cards =========================== */
+  const scroller = document.getElementById('scroller');
+  const dotsWrap = document.getElementById('dots');
+  document.getElementById('styleCount').textContent = `${STYLES.length} styles`;
+
+  STYLES.forEach((s, i) => {
+    const card = document.createElement('article');
+    card.className = 'card' + (i === 0 ? ' is-active' : '');
+    card.dataset.idx = i;
+    card.innerHTML = `
+      <img src="${s.img}" alt="${s.title}" />
+      <div class="card-meta">
+        <span class="card-tag">${s.tag}</span>
+        <p class="card-title">${s.title}</p>
+      </div>`;
+    card.addEventListener('click', () => openDetail(i));
+    scroller.appendChild(card);
+
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' is-active' : '');
+    dotsWrap.appendChild(d);
+  });
+  const cards = [...scroller.querySelectorAll('.card')];
+  const dots = [...dotsWrap.children];
+
+  let scrollTicking = false;
+  scroller.addEventListener('scroll', () => {
+    if (scrollTicking) return;
+    scrollTicking = true;
+    requestAnimationFrame(() => {
+      const center = scroller.scrollLeft + scroller.clientWidth / 2;
+      let activeIdx = 0, minDist = Infinity;
+      cards.forEach((c, i) => {
+        const cc = c.offsetLeft + c.offsetWidth / 2;
+        const dist = Math.abs(cc - center);
+        if (dist < minDist) { minDist = dist; activeIdx = i; }
+      });
+      cards.forEach((c, i) => c.classList.toggle('is-active', i === activeIdx));
+      dots.forEach((d, i) => d.classList.toggle('is-active', i === activeIdx));
+      scrollTicking = false;
+    });
+  }, { passive: true });
+
+  /* =========================== Detail view =========================== */
+  const viewMain = document.getElementById('viewMain');
+  const viewDetail = document.getElementById('viewDetail');
+  const detailTitle = document.getElementById('detailTitle');
+  const fileInput = document.getElementById('fileInput');
+  const uploadArea = document.getElementById('uploadArea');
+  const uploadTrack = document.getElementById('uploadTrack');
+  const slideOriginal = document.getElementById('slideOriginal');
+  const uploadEmpty = document.getElementById('uploadEmpty');
+  const uploadDots = document.getElementById('uploadDots');
+  const promptInput = document.getElementById('promptInput');
+  const generateBtn = document.getElementById('generateBtn');
+  const autoBtn = document.getElementById('autoBtn');
+  const backBtn = document.getElementById('backBtn');
+
+  let currentStyle = null;
+  let originalDataUrl = null;
+  let resultDataUrl = null;
+
+  function openDetail(idx) {
+    currentStyle = STYLES[idx];
+    detailTitle.textContent = currentStyle.title;
+    promptInput.value = currentStyle.prompt;
+    resetUpload();
+    viewMain.classList.add('is-out-left');
+    viewDetail.classList.remove('is-out-right');
+  }
+  function closeDetail() {
+    viewDetail.classList.add('is-out-right');
+    viewMain.classList.remove('is-out-left');
+  }
+  backBtn.addEventListener('click', closeDetail);
+
+  function resetUpload() {
+    originalDataUrl = null;
+    resultDataUrl = null;
+    uploadTrack.innerHTML = '';
+    uploadTrack.appendChild(slideOriginal);
+    uploadEmpty.classList.remove('hidden');
+    uploadDots.classList.add('hidden');
+    uploadDots.innerHTML = '';
+    const exImg = slideOriginal.querySelector('img');
+    if (exImg) exImg.remove();
+  }
+
+  uploadArea.addEventListener('click', (e) => {
+    if (e.target.closest('.mini-btn')) return;
+    fileInput.click();
+  });
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      originalDataUrl = reader.result;
+      renderOriginalSlide();
+    };
+    reader.readAsDataURL(file);
+  });
+
+  function renderOriginalSlide() {
+    uploadEmpty.classList.add('hidden');
+    let img = slideOriginal.querySelector('img');
+    if (!img) {
+      img = document.createElement('img');
+      slideOriginal.appendChild(img);
+    }
+    img.src = originalDataUrl;
+    if (resultDataUrl) renderResultSlide();
+  }
+
+  function renderResultSlide() {
+    let resultSlide = document.getElementById('slideResult');
+    if (!resultSlide) {
+      resultSlide = document.createElement('div');
+      resultSlide.className = 'upload-slide';
+      resultSlide.id = 'slideResult';
+      resultSlide.innerHTML = `
+        <span class="slide-label" style="background:linear-gradient(112deg,#00B380,#016837)">After</span>
+        <img />
+        <div class="slide-actions">
+          <button class="mini-btn" id="downloadBtn">다운로드</button>
+        </div>`;
+      uploadTrack.appendChild(resultSlide);
+      resultSlide.querySelector('#downloadBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        downloadResult();
+      });
+    }
+    resultSlide.querySelector('img').src = resultDataUrl;
+    setupUploadDots();
+    requestAnimationFrame(() => {
+      uploadTrack.scrollTo({ left: uploadTrack.clientWidth, behavior: 'smooth' });
+    });
+  }
+
+  function setupUploadDots() {
+    const slides = uploadTrack.querySelectorAll('.upload-slide');
+    if (slides.length < 2) {
+      uploadDots.classList.add('hidden');
+      return;
+    }
+    uploadDots.classList.remove('hidden');
+    uploadDots.innerHTML = '';
+    slides.forEach((_, i) => {
+      const d = document.createElement('div');
+      d.className = 'dot' + (i === 0 ? ' is-active' : '');
+      uploadDots.appendChild(d);
+    });
+  }
+
+  uploadTrack.addEventListener('scroll', () => {
+    const slides = uploadTrack.querySelectorAll('.upload-slide');
+    if (slides.length < 2) return;
+    const idx = Math.round(uploadTrack.scrollLeft / uploadTrack.clientWidth);
+    [...uploadDots.children].forEach((d, i) => d.classList.toggle('is-active', i === idx));
+  }, { passive: true });
+
+  function downloadResult() {
+    if (!resultDataUrl) return;
+    const a = document.createElement('a');
+    a.href = resultDataUrl;
+    a.download = `tbpic-${currentStyle.id}-${Date.now()}.png`;
+    a.click();
+  }
+
+  /* ---------- Generate stubs (API hook later) ---------- */
+  async function callGenerate(promptText) {
+    if (!localStorage.getItem('tbpic_token')) {
+      alert('로그인 후 이용 가능합니다.');
+      return;
+    }
+    if (!originalDataUrl) {
+      alert('먼저 사진을 업로드해주세요.');
+      return;
+    }
+    const orig = generateBtn.textContent;
+    generateBtn.disabled = true;
+    autoBtn.disabled = true;
+    generateBtn.innerHTML = '생성 중...';
+    try {
+      // TODO: 실제 Gemini API 연동 자리. 지금은 원본 그대로 표시(데모).
+      await new Promise(r => setTimeout(r, 800));
+      resultDataUrl = originalDataUrl;
+      renderResultSlide();
+    } catch (err) {
+      alert('생성 실패: ' + (err?.message || err));
+    } finally {
+      generateBtn.disabled = false;
+      autoBtn.disabled = false;
+      generateBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> 사진 생성`;
+    }
+  }
+
+  generateBtn.addEventListener('click', () => {
+    callGenerate(promptInput.value.trim() || currentStyle.prompt);
+  });
+  autoBtn.addEventListener('click', () => {
+    // 자동 생성: 사용자 프롬프트 무시, 카드 기본 프롬프트로 호출
+    callGenerate(currentStyle.prompt);
+  });
+</script>
+</body>
+</html>
