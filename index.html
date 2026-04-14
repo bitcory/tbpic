@@ -402,11 +402,20 @@
     overflow: hidden;
     flex: 0 0 auto;
   }
+  .detail-body.is-custom {
+    overflow: hidden;
+  }
   .detail-body.is-custom .upload-area {
     aspect-ratio: auto;
-    height: 38vh;
-    max-height: 300px;
-    min-height: 180px;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  .detail-body.is-custom .prompt-box {
+    flex: 0 0 auto;
+  }
+  .detail-body.is-custom .prompt-box textarea {
+    min-height: 56px;
+    max-height: 110px;
   }
   .upload-area input[type=file] { display: none; }
   .upload-track {
