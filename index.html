@@ -508,6 +508,120 @@
   }
   .prompt-box textarea::placeholder { color: #94A3B8; font-size: 16px; }
 
+  /* ---------- Case picker ---------- */
+  .case-picker {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #fff;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    padding: 10px 14px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+  }
+  .case-picker:hover { border-color: #00B380; background: #F0FDF8; }
+  .case-picker:active { transform: scale(0.98); }
+  .case-picker-thumb {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    overflow: hidden;
+    flex: 0 0 auto;
+    background: #F1F5F9;
+  }
+  .case-picker-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .case-picker-label { flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .case-picker-title { font-size: 15px; font-weight: 800; color: #0F172A; }
+  .case-picker-sub { font-size: 12px; color: #64748B; }
+  .case-picker svg { width: 18px; height: 18px; color: #64748B; flex: 0 0 auto; }
+
+  /* ---------- Case modal ---------- */
+  .case-modal {
+    position: fixed; inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .case-modal.hidden { display: none; }
+  .case-modal-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(15,23,42,0.45);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    animation: fadeIn 0.25s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .case-modal-sheet {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    max-height: 85vh;
+    background: #fff;
+    border-radius: 24px 24px 0 0;
+    padding: 18px 18px 24px;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.3s cubic-bezier(.2,.8,.2,1);
+    box-shadow: 0 -20px 40px -10px rgba(15,23,42,0.25);
+  }
+  .case-modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .case-modal-head h3 { font-size: 18px; font-weight: 800; color: #0F172A; margin: 0; }
+  .case-modal-close {
+    width: 36px; height: 36px;
+    border: none; background: #F1F5F9;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: #334155;
+  }
+  .case-modal-close svg { width: 18px; height: 18px; }
+  .case-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    overflow-y: auto;
+  }
+  .case-item {
+    position: relative;
+    aspect-ratio: 3/4;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+    background: #F1F5F9;
+  }
+  .case-item:active { transform: scale(0.97); }
+  .case-item.is-active { border-color: #00B380; }
+  .case-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .case-item-title {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 10px 12px;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.75) 100%);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .case-item.is-active::after {
+    content: '';
+    position: absolute;
+    top: 8px; right: 8px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: #00B380 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M5 12l5 5L20 7'/></svg>") center/14px no-repeat;
+  }
+
   /* action row */
   .action-row {
     flex: 0 0 auto;
@@ -635,9 +749,35 @@
           <div class="upload-dots hidden" id="uploadDots"></div>
         </div>
 
+        <button class="case-picker hidden" id="casePickerBtn" type="button">
+          <span class="case-picker-thumb"><img id="casePickerThumb" alt=""/></span>
+          <span class="case-picker-label">
+            <span class="case-picker-title" id="casePickerTitle">예시 선택</span>
+            <span class="case-picker-sub">다른 예시 보기</span>
+          </span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </button>
+
         <div class="prompt-box" id="promptBox">
           <label for="promptInput">프롬프트</label>
           <textarea id="promptInput" placeholder="원하는 스타일을 자유롭게 적어주세요. 예) 부드러운 자연광, 파스텔톤, 영화같은 분위기"></textarea>
+        </div>
+      </div>
+
+      <div class="case-modal hidden" id="caseModal">
+        <div class="case-modal-backdrop" id="caseModalBackdrop"></div>
+        <div class="case-modal-sheet">
+          <div class="case-modal-head">
+            <h3>예시 선택</h3>
+            <button class="case-modal-close" id="caseModalClose" aria-label="닫기">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 6l12 12M18 6L6 18"/>
+              </svg>
+            </button>
+          </div>
+          <div class="case-grid" id="caseGrid"></div>
         </div>
       </div>
 
@@ -830,6 +970,45 @@ Captured with a Canon EOS R5 full-frame DSLR, 85mm f/1.8 lens for crisp detail, 
     { id: 'hanbok', tag: 'Hanbok', title: '한복 입어보기',
       img: 'styles/hanbok.jpg',
       mode: 'preset',
+      cases: [
+        { id: 'najeon', title: '자개 한복', img: 'styles/hanbok.jpg' },
+        { id: 'pink', title: '핑크 한복', img: 'styles/hanbok-pink.png',
+          prompt: `Use the attached image of the model as facial reference and physical features. Soft and ethereal editorial medium shot portrait of uploaded person, wearing a stunning fusion hanbok inspired by watercolor illustration. The outfit features a sheer, see-through jeogori (jacket) in soft pink and cream with delicate floral embroidery and subtle crystal embellishments. The chima (skirt) is made of layered translucent organza in gradient shades of pink, rose, and soft coral, adorned with large, painted-style floral motifs in shades of deep pink, rose, and magenta that look like watercolor paintings. The skirt has a gracefully flowing A-line silhouette that falls naturally, not overly wide or spread out. A ornate, jewel-toned norigae hangs centrally. The model poses elegantly, hands gracefully holding the goreum near her chest. She has a captivating, radiant expression with a gentle smile. The gaze is alluring and directed toward the camera, exuding a dreamy and regal aura. Maintain exact facial features, bone structure, and likeness from the reference image only.
+
+Background: A dreamlike, painted garden setting filled with soft, diffused light, blooming watercolor flowers in pink and pastel hues, and lush foliage, without any wing structures. The background elements have a soft, painted quality that blends seamlessly with the hanbok style.
+
+Lighting: Soft, diffused, and glowing natural light that enhances the translucency of the fabric and the watercolor texture, creating a radiant, ethereal glow around the subject.
+
+Pose: Elegant and poised editorial pose, emphasizing the flowing, sheer layers and the painted details of the fusion hanbok while holding the goreum.
+
+Camera: Eye-level angle, medium shot framing focusing on single subject only, capturing the watercolor textures, fabric transparency, and jewelry details. Captured with a Canon EOS R5 full-frame DSLR, 85mm f/1.8 lens for crisp detail, shallow depth of field. Style: Hyper-realistic photography with a distinct watercolor illustration aesthetic, vibrant yet soft colors, single person composition.` },
+        { id: 'mint', title: '민트 한복 셀카', img: 'styles/hanbok-mint.png',
+          prompt: `A realistic high-angle selfie of a cute young woman wearing a mint-colored traditional Korean hanbok, with a shy, surprised expression. She is gently covering her mouth with her hand. The image features soft natural lighting, wavy brown hair with a hair clip, and a sweet "K-pop idol" aesthetic.
+
+A cute idol-style young woman selfie portrait in mint hanbok, upper body visible. Vertical composition.
+
+This is a selfie taken from slightly ABOVE the face. The camera is held a little higher than eye level and angled downward, creating a natural cute selfie perspective.
+
+Because of the selfie angle, her face appears slightly tilted downward naturally, not forced, not exaggerated. This is NOT a straight-on studio portrait.
+
+She is looking slightly upward toward the camera with her eyes, creating a shy, cute, innocent idol selfie expression.
+
+Her right hand is raised in front of her mouth. Fingers together, relaxed, straight. Fingertips gently touching the lips, as if she is shy or surprised.
+
+Outfit: a soft mint-colored traditional hanbok jeogori with delicate floral embroidery, cream-white collar accents, sheer organza sleeves, worn with a light mint chima skirt. Elegant, fresh, and feminine.
+
+Long brown hair, softly wavy. Side-swept bangs. Small pastel hair clip on the left side. Delicate earrings.
+
+Soft pink blush, glossy lips. Smooth fair skin.
+
+Soft natural lighting, like indoor daylight. Clean background with soft pastel floral wall.
+
+High-resolution, ultra-detailed. Soft beauty, realistic, idol kawaii aesthetic. Natural selfie feeling, fan-service vibe, not professional studio.
+
+Maintain exact facial features, bone structure, and likeness from the reference image only.
+
+Negative prompt: straight-on face, passport photo, professional studio portrait, camera at eye level, camera below face, perfect symmetry, fashion editorial pose, model pose, confident expression, cold expression, head raised, chin lifted, open mouth, teeth visible, anime, cartoon, blurry, low quality` },
+      ],
       prompt: `Use the attached reference image as a facial identity reference.
 Preserve the same facial structure, proportions, and likeness from the reference image, while allowing artistic Mother-of-Pearl Nacre Inlay styling adjustments.
 Do not change the person's identity.
@@ -996,11 +1175,66 @@ High-end Najeonchilgi, premium mother-of-pearl inlay, black lacquer art, iridesc
   const autoLabel = document.getElementById('autoLabel');
 
   let currentStyle = null;
+  let currentCaseIdx = 0;
   let originalDataUrl = null;
   let resultDataUrl = null;
 
+  const casePickerBtn = document.getElementById('casePickerBtn');
+  const casePickerThumb = document.getElementById('casePickerThumb');
+  const casePickerTitle = document.getElementById('casePickerTitle');
+  const caseModal = document.getElementById('caseModal');
+  const caseModalBackdrop = document.getElementById('caseModalBackdrop');
+  const caseModalClose = document.getElementById('caseModalClose');
+  const caseGrid = document.getElementById('caseGrid');
+
+  function getActivePrompt() {
+    if (!currentStyle) return '';
+    if (currentStyle.cases && currentStyle.cases[currentCaseIdx]) {
+      const c = currentStyle.cases[currentCaseIdx];
+      return c.prompt || currentStyle.prompt;
+    }
+    return currentStyle.prompt;
+  }
+  function updateCasePickerUI() {
+    if (!currentStyle?.cases?.length) {
+      casePickerBtn.classList.add('hidden');
+      return;
+    }
+    const c = currentStyle.cases[currentCaseIdx];
+    casePickerBtn.classList.remove('hidden');
+    casePickerThumb.src = c.img;
+    casePickerTitle.textContent = c.title;
+  }
+  function renderCaseGrid() {
+    caseGrid.innerHTML = '';
+    if (!currentStyle?.cases?.length) return;
+    currentStyle.cases.forEach((c, i) => {
+      const el = document.createElement('div');
+      el.className = 'case-item' + (i === currentCaseIdx ? ' is-active' : '');
+      el.innerHTML = `<img src="${c.img}" alt="${c.title}"/><div class="case-item-title">${c.title}</div>`;
+      el.addEventListener('click', () => {
+        currentCaseIdx = i;
+        updateCasePickerUI();
+        closeCaseModal();
+      });
+      caseGrid.appendChild(el);
+    });
+  }
+  function openCaseModal() {
+    renderCaseGrid();
+    caseModal.classList.remove('hidden');
+  }
+  function closeCaseModal() {
+    caseModal.classList.add('hidden');
+  }
+  casePickerBtn.addEventListener('click', openCaseModal);
+  caseModalBackdrop.addEventListener('click', closeCaseModal);
+  caseModalClose.addEventListener('click', closeCaseModal);
+
   function openDetail(idx) {
     currentStyle = STYLES[idx];
+    currentCaseIdx = 0;
+    updateCasePickerUI();
     detailTitle.textContent = currentStyle.title;
     if (currentStyle.mode === 'preset') {
       promptBox.classList.add('hidden');
@@ -1188,15 +1422,17 @@ High-end Najeonchilgi, premium mother-of-pearl inlay, black lacquer art, iridesc
       callGenerate(userText);
       return;
     }
+    const basePrompt = getActivePrompt();
     const text = currentStyle.mode === 'preset'
-      ? currentStyle.prompt
-      : (promptInput.value.trim() || currentStyle.prompt);
+      ? basePrompt
+      : (promptInput.value.trim() || basePrompt);
     callGenerate(text);
   });
   autoBtn.addEventListener('click', () => {
+    const basePrompt = getActivePrompt();
     const text = currentStyle.mode === 'dual'
-      ? (currentStyle.promptSecondary || currentStyle.prompt)
-      : currentStyle.prompt;
+      ? (currentStyle.promptSecondary || basePrompt)
+      : basePrompt;
     callGenerate(text);
   });
 </script>
