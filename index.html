@@ -197,7 +197,36 @@
     display: flex;
     align-items: stretch;
     padding: 4px 0 0;
+    position: relative;
   }
+  .nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.92);
+    box-shadow:
+      0 6px 16px -4px rgba(15,23,42,0.25),
+      0 2px 4px rgba(15,23,42,0.08);
+    color: #0F172A;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 5;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+  }
+  .nav-arrow svg { width: 20px; height: 20px; }
+  .nav-arrow:hover { background: #fff; transform: translateY(-50%) scale(1.08); }
+  .nav-arrow:active { transform: translateY(-50%) scale(0.94); }
+  .nav-arrow.is-disabled { opacity: 0.35; pointer-events: none; }
+  .nav-prev { left: 10px; }
+  .nav-next { right: 10px; }
   .scroller {
     display: flex;
     gap: 14px;
@@ -557,7 +586,17 @@
       </div>
 
       <div class="scroller-wrap">
+        <button class="nav-arrow nav-prev" id="navPrev" aria-label="이전">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </button>
         <div class="scroller" id="scroller"></div>
+        <button class="nav-arrow nav-next" id="navNext" aria-label="다음">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 6l6 6-6 6"/>
+          </svg>
+        </button>
       </div>
 
       <div class="dots" id="dots"></div>
@@ -912,6 +951,34 @@ High-end Najeonchilgi, premium mother-of-pearl inlay, black lacquer art, iridesc
   window.addEventListener('load', updateCards);
   window.addEventListener('resize', updateCards);
   requestAnimationFrame(updateCards);
+
+  const navPrev = document.getElementById('navPrev');
+  const navNext = document.getElementById('navNext');
+  function currentActiveIdx() {
+    const center = scroller.scrollLeft + scroller.clientWidth / 2;
+    let idx = 0, min = Infinity;
+    cards.forEach((c, i) => {
+      const d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - center);
+      if (d < min) { min = d; idx = i; }
+    });
+    return idx;
+  }
+  function scrollToIdx(i) {
+    i = Math.max(0, Math.min(cards.length - 1, i));
+    const c = cards[i];
+    if (!c) return;
+    const target = c.offsetLeft + c.offsetWidth / 2 - scroller.clientWidth / 2;
+    scroller.scrollTo({ left: target, behavior: 'smooth' });
+  }
+  navPrev.addEventListener('click', () => scrollToIdx(currentActiveIdx() - 1));
+  navNext.addEventListener('click', () => scrollToIdx(currentActiveIdx() + 1));
+  function updateArrows() {
+    const i = currentActiveIdx();
+    navPrev.classList.toggle('is-disabled', i <= 0);
+    navNext.classList.toggle('is-disabled', i >= cards.length - 1);
+  }
+  scroller.addEventListener('scroll', updateArrows, { passive: true });
+  updateArrows();
 
   /* =========================== Detail view =========================== */
   const viewMain = document.getElementById('viewMain');
