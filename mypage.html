@@ -686,7 +686,19 @@
     if (document.visibilityState === 'visible') refreshMe();
   });
 
-  // 30초마다 본인 정보 자동 갱신 (충전 승인 자동 반영)
+  // 본인 정보 자동 갱신 (충전 승인 자동 반영)
+  // - 충전 대기 중: 3초마다 빠르게 polling
+  // - 평상시: 30초마다
+  let fastPollTimer = null;
+  function startFastPoll() {
+    if (fastPollTimer) return;
+    fastPollTimer = setInterval(refreshMe, 3000);
+  }
+  function stopFastPoll() {
+    if (!fastPollTimer) return;
+    clearInterval(fastPollTimer);
+    fastPollTimer = null;
+  }
   setInterval(refreshMe, 30000);
 
   function renderPackages() {
@@ -744,6 +756,7 @@
     }
   });
 
+  let hadPending = false;
   async function loadMyChargeStatus() {
     try {
       const { requests } = await api('/api/charge/request');
@@ -753,8 +766,22 @@
         document.getElementById('pendingText').textContent =
           `사진 ${pending.packageSize}장 충전 요청 처리 대기 중 (₩${pending.amountWon.toLocaleString()})`;
         banner.classList.remove('hidden');
+        hadPending = true;
+        startFastPoll();
       } else {
         banner.classList.add('hidden');
+        if (hadPending) {
+          hadPending = false;
+          stopFastPoll();
+          // 승인 직후: 할당량 증가 애니메이션으로 시각 피드백
+          const qEl = document.getElementById('qRemain');
+          if (qEl) {
+            qEl.style.transition = 'color .4s, transform .4s';
+            qEl.style.color = '#00996D';
+            qEl.style.transform = 'scale(1.25)';
+            setTimeout(() => { qEl.style.color = ''; qEl.style.transform = ''; }, 900);
+          }
+        }
       }
     } catch (_) {}
   }
