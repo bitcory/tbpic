@@ -275,12 +275,22 @@
     background: #DCFCE7; padding: 2px 6px; border-radius: 6px;
   }
   .u-row .sub { font-size: 11px; color: #64748B; margin-top: 2px; font-family: ui-monospace, monospace; }
-  .u-row .qt { font-size: 13px; font-weight: 700; color: #0F172A; flex: 0 0 auto; min-width: 60px; text-align: right; }
+  .u-row .qt {
+    font-size: 13px; font-weight: 700; color: #0F172A; flex: 0 0 auto;
+    min-width: 60px; text-align: right; cursor: pointer;
+    padding: 4px 6px; border-radius: 6px; transition: background .12s;
+  }
+  .u-row .qt:hover { background: #F1F5F9; }
+  .u-row .qt:active { background: #E2E8F0; }
   .u-row .actions { display: flex; gap: 4px; flex: 0 0 auto; }
   .mini {
     border: none; cursor: pointer; font-family: inherit; font-weight: 700;
     border-radius: 8px; padding: 6px 8px; font-size: 11px;
+    transition: transform .08s ease, filter .12s ease, opacity .12s ease;
   }
+  .mini:hover { filter: brightness(1.08); }
+  .mini:active { transform: scale(0.92); filter: brightness(0.9); }
+  .mini[disabled] { opacity: 0.55; cursor: not-allowed; transform: none; filter: none; }
   .mini.add { background: #00996D; color: #fff; }
   .mini.charge { background: #016837; color: #fff; }
   .mini.reset { background: #E2E8F0; color: #334155; }
@@ -775,6 +785,10 @@
           const id = parseInt(btn.closest('.charge-req').dataset.id, 10);
           const action = btn.dataset.act;
           if (action === 'reject' && !confirm('정말 거부할까요?')) return;
+          const siblings = btn.closest('.actions').querySelectorAll('button');
+          const origText = btn.textContent;
+          siblings.forEach(b => b.disabled = true);
+          btn.textContent = action === 'approve' ? '승인중…' : '처리중…';
           try {
             await api('/api/charge/process', {
               method: 'POST',
@@ -783,6 +797,8 @@
             await refreshAll();
           } catch (err) {
             alert('실패: ' + err.message);
+            siblings.forEach(b => b.disabled = false);
+            btn.textContent = origText;
           }
         });
       });
@@ -937,7 +953,7 @@
           </div>
           <div class="sub">${escapeHtml(u.kakaoId)}</div>
         </div>
-        <div class="qt">${u.remaining}/${u.quota}</div>
+        <div class="qt" data-act="setQuota" title="클릭해서 총 장수 직접 수정">${u.remaining}/${u.quota}</div>
         <div class="actions">
           <button class="mini add" data-act="add">+1</button>
           <button class="mini charge" data-act="charge">충전</button>
@@ -947,28 +963,46 @@
       </div>
     `).join('');
 
+    const runAction = async (btn) => {
+      const row = btn.closest('.u-row');
+      const kakaoId = row.dataset.id;
+      const u = users.find(x => x.kakaoId === kakaoId);
+      const payload = { kakaoId };
+      const act = btn.dataset.act;
+      if (act === 'add') payload.quota = u.quota + 1;
+      if (act === 'charge') {
+        const n = parseInt(prompt(`${u.nickname || '사용자'}에게 몇 장 충전할까요?`, '5') || '0', 10);
+        if (!n || n < 1) return;
+        payload.quota = u.quota + n;
+      }
+      if (act === 'setQuota') {
+        const n = parseInt(prompt(`${u.nickname || '사용자'}의 총 장수를 몇 장으로 설정할까요? (현재 ${u.quota}장)`, String(u.quota)) || '', 10);
+        if (isNaN(n) || n < 0) return;
+        payload.quota = n;
+      }
+      if (act === 'reset') payload.used = 0;
+      if (act === 'block') payload.isBlocked = true;
+      if (act === 'unblock') payload.isBlocked = false;
+
+      const siblings = row.querySelectorAll('button, .qt');
+      const origText = btn.textContent;
+      siblings.forEach(b => { if (b.tagName === 'BUTTON') b.disabled = true; });
+      if (btn.tagName === 'BUTTON') btn.textContent = '처리중…';
+      try {
+        await api('/api/admin/adjust', { method: 'POST', body: payload });
+        await refreshAll();
+      } catch (err) {
+        alert('실패: ' + err.message);
+        siblings.forEach(b => { if (b.tagName === 'BUTTON') b.disabled = false; });
+        if (btn.tagName === 'BUTTON') btn.textContent = origText;
+      }
+    };
+
     wrap.querySelectorAll('button').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const row = btn.closest('.u-row');
-        const kakaoId = row.dataset.id;
-        const u = users.find(x => x.kakaoId === kakaoId);
-        const payload = { kakaoId };
-        if (btn.dataset.act === 'add') payload.quota = u.quota + 1;
-        if (btn.dataset.act === 'charge') {
-          const n = parseInt(prompt(`${u.nickname || '사용자'}에게 몇 장 충전할까요?`, '5') || '0', 10);
-          if (!n || n < 1) return;
-          payload.quota = u.quota + n;
-        }
-        if (btn.dataset.act === 'reset') payload.used = 0;
-        if (btn.dataset.act === 'block') payload.isBlocked = true;
-        if (btn.dataset.act === 'unblock') payload.isBlocked = false;
-        try {
-          await api('/api/admin/adjust', { method: 'POST', body: payload });
-          await refreshAll();
-        } catch (err) {
-          alert('실패: ' + err.message);
-        }
-      });
+      btn.addEventListener('click', () => runAction(btn));
+    });
+    wrap.querySelectorAll('.qt[data-act="setQuota"]').forEach(el => {
+      el.addEventListener('click', () => runAction(el));
     });
   }
 </script>
