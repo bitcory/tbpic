@@ -228,12 +228,37 @@
     box-shadow:
       0 18px 36px -18px rgba(15,23,42,0.35),
       0 4px 10px -4px rgba(15,23,42,0.15);
-    transform: scale(0.94);
-    transition: transform 0.4s cubic-bezier(.2,.8,.2,1);
-    will-change: transform;
+    transform: scale(0.86) translateY(10px);
+    opacity: 0.55;
+    transition: transform 0.45s cubic-bezier(.2,.8,.2,1),
+                opacity 0.45s cubic-bezier(.2,.8,.2,1),
+                box-shadow 0.45s cubic-bezier(.2,.8,.2,1);
+    will-change: transform, opacity;
     cursor: pointer;
+    transform-origin: center center;
   }
-  .card.is-active { transform: scale(1); }
+  .card.is-active {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+    box-shadow:
+      0 30px 60px -20px rgba(15,23,42,0.5),
+      0 10px 20px -10px rgba(0,179,128,0.25);
+  }
+  .card img {
+    transition: transform 0.6s cubic-bezier(.2,.8,.2,1);
+    transform: scale(1.08);
+  }
+  .card.is-active img { transform: scale(1); }
+  .card-meta {
+    transition: transform 0.45s cubic-bezier(.2,.8,.2,1),
+                opacity 0.45s cubic-bezier(.2,.8,.2,1);
+    transform: translateY(8px);
+    opacity: 0.7;
+  }
+  .card.is-active .card-meta {
+    transform: translateY(0);
+    opacity: 1;
+  }
   .card::before {
     content: '';
     position: absolute; inset: 0;
@@ -855,22 +880,38 @@ High-end Najeonchilgi, premium mother-of-pearl inlay, black lacquer art, iridesc
   const dots = [...dotsWrap.children];
 
   let scrollTicking = false;
+  function updateCards() {
+    const center = scroller.scrollLeft + scroller.clientWidth / 2;
+    let activeIdx = 0, minDist = Infinity;
+    const cardW = cards[0] ? cards[0].offsetWidth : 1;
+    cards.forEach((c, i) => {
+      const cc = c.offsetLeft + c.offsetWidth / 2;
+      const dist = cc - center;
+      const absDist = Math.abs(dist);
+      if (absDist < minDist) { minDist = absDist; activeIdx = i; }
+      const ratio = Math.min(absDist / cardW, 1);
+      const scale = 1 - ratio * 0.14;
+      const translateY = ratio * 10;
+      const rotateY = (dist / cardW) * -8;
+      const opacity = 1 - ratio * 0.45;
+      c.style.transform = `perspective(1000px) translateY(${translateY}px) scale(${scale}) rotateY(${rotateY}deg)`;
+      c.style.opacity = opacity;
+      c.style.transition = 'none';
+    });
+    cards.forEach((c, i) => c.classList.toggle('is-active', i === activeIdx));
+    dots.forEach((d, i) => d.classList.toggle('is-active', i === activeIdx));
+  }
   scroller.addEventListener('scroll', () => {
     if (scrollTicking) return;
     scrollTicking = true;
     requestAnimationFrame(() => {
-      const center = scroller.scrollLeft + scroller.clientWidth / 2;
-      let activeIdx = 0, minDist = Infinity;
-      cards.forEach((c, i) => {
-        const cc = c.offsetLeft + c.offsetWidth / 2;
-        const dist = Math.abs(cc - center);
-        if (dist < minDist) { minDist = dist; activeIdx = i; }
-      });
-      cards.forEach((c, i) => c.classList.toggle('is-active', i === activeIdx));
-      dots.forEach((d, i) => d.classList.toggle('is-active', i === activeIdx));
+      updateCards();
       scrollTicking = false;
     });
   }, { passive: true });
+  window.addEventListener('load', updateCards);
+  window.addEventListener('resize', updateCards);
+  requestAnimationFrame(updateCards);
 
   /* =========================== Detail view =========================== */
   const viewMain = document.getElementById('viewMain');
@@ -949,15 +990,37 @@ High-end Najeonchilgi, premium mother-of-pearl inlay, black lacquer art, iridesc
     if (e.target.closest('.mini-btn')) return;
     fileInput.click();
   });
-  fileInput.addEventListener('change', (e) => {
+  async function resizeImageToDataUrl(file, maxSize = 1536, quality = 0.9) {
+    const bitmap = await (window.createImageBitmap
+      ? createImageBitmap(file)
+      : new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve(img);
+          img.onerror = reject;
+          img.src = URL.createObjectURL(file);
+        }));
+    const { width: w, height: h } = bitmap;
+    const scale = Math.min(1, maxSize / Math.max(w, h));
+    const tw = Math.round(w * scale);
+    const th = Math.round(h * scale);
+    const canvas = document.createElement('canvas');
+    canvas.width = tw;
+    canvas.height = th;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(bitmap, 0, 0, tw, th);
+    return canvas.toDataURL('image/jpeg', quality);
+  }
+
+  fileInput.addEventListener('change', async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      originalDataUrl = reader.result;
+    try {
+      originalDataUrl = await resizeImageToDataUrl(file);
       renderOriginalSlide();
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      console.error(err);
+      alert('이미지를 불러오지 못했습니다');
+    }
   });
 
   function renderOriginalSlide() {
