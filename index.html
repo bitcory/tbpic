@@ -402,6 +402,12 @@
     overflow: hidden;
     flex: 0 0 auto;
   }
+  .detail-body.is-custom .upload-area {
+    aspect-ratio: auto;
+    height: 38vh;
+    max-height: 300px;
+    min-height: 180px;
+  }
   .upload-area input[type=file] { display: none; }
   .upload-track {
     display: flex;
@@ -729,7 +735,7 @@
         <h2 class="detail-title" id="detailTitle">스타일</h2>
       </div>
 
-      <div class="detail-body">
+      <div class="detail-body" id="detailBody">
         <div class="upload-area" id="uploadArea">
           <input type="file" id="fileInput" accept="image/*" />
           <div class="upload-track" id="uploadTrack">
@@ -1235,6 +1241,7 @@ High-end Najeonchilgi, premium mother-of-pearl inlay, black lacquer art, iridesc
     currentStyle = STYLES[idx];
     currentCaseIdx = 0;
     updateCasePickerUI();
+    document.getElementById('detailBody').classList.remove('is-custom');
     detailTitle.textContent = currentStyle.title;
     if (currentStyle.mode === 'preset') {
       promptBox.classList.add('hidden');
@@ -1253,6 +1260,7 @@ High-end Najeonchilgi, premium mother-of-pearl inlay, black lacquer art, iridesc
       generateLabel.textContent = '사진 변경하기';
       promptInput.value = '';
       promptInput.placeholder = '예) 배경을 카페로 바꿔주세요\n예) 정장으로 옷을 갈아입혀주세요\n예) 봄꽃이 핀 공원에서 찍은 것처럼 만들어주세요';
+      document.getElementById('detailBody').classList.add('is-custom');
     } else {
       promptBox.classList.remove('hidden');
       autoBtn.classList.remove('hidden');
