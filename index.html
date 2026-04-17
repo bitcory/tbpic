@@ -1007,6 +1007,13 @@ keep the original face and identity exactly the same` },
     { id: 'bw', tag: 'B&W', title: '흑백 사진',
       img: 'styles/bw.jpg',
       mode: 'preset',
+      cases: [
+        { id: 'classic', title: '클래식 흑백사진', img: 'styles/bw.jpg' },
+        { id: 'mood', title: '느낌있는 흑백사진', img: 'styles/bw1.jpeg',
+          prompt: `Use the attached image of the model as facial reference and physical features. Black and white high-fashion editorial portrait of uploaded person, wearing a loose white shirt with an open collar. The model poses with one arm raised, partially covering the face while holding hair up, creating a dramatic and artistic composition. The gaze is intense and captivating, directed toward the camera, exuding a strong, enigmatic aura.
+Background: minimalist plain wall with sharp natural daylight casting defined shadows, adding depth and contrast. Lighting: harsh natural sunlight, high-contrast setup highlighting facial contours, sharp bone structure, and texture of the hair and fabric. Pose: bold and expressive, arm lifted framing the face, emphasizing raw emotion and editorial style.
+Camera: eye-level angle, close-up framing focusing on facial expression, texture, and dramatic shadow play. Captured with a Canon EOS R5 full-frame DSLR, 85mm f/1.8 lens for crisp detail, tonal depth, and fine grain. Style: high-fashion editorial in monochrome.` },
+      ],
       prompt: `Use the attached image of the model as facial reference and physical features.
 
 Black and white high-fashion editorial portrait of uploaded person, wearing a loose white shirt with an open collar.
@@ -1026,6 +1033,35 @@ Pose: confident and natural, arms crossed comfortably, emphasizing poise and edi
 Camera: eye-level angle, close-up framing focusing on facial expression, texture, and dramatic shadow play.
 
 Captured with a Canon EOS R5 full-frame DSLR, 85mm f/1.8 lens for crisp detail, tonal depth, and fine grain.` },
+    { id: 'anime', tag: 'Anime', title: '애니메이션 사진',
+      img: 'styles/anime.jpeg',
+      mode: 'preset',
+      prompt: `Use the attached image of the model as facial reference and physical features. Maintain exact facial features, bone structure, hair color, hairstyle, and outfit from the reference image.
+
+[POSITIVE]
+VTuber style 3D anime, anime conversion,
+same face structure as reference image,
+smooth gradient shading skin,
+porcelain skin with subtle pink undertone,
+subsurface scattering skin texture,
+large vivid anime eyes with star highlights,
+thick defined eyelashes, soft anime facial features,
+keep original hair color and style,
+keep original outfit and clothing,
+semi-realistic 3D anime render,
+VTuber rendering quality,
+multi-light setup, bloom effect,
+cinematic depth of field, 8K ultra detailed
+
+[NEGATIVE]
+photorealistic, hyperrealistic,
+real human skin texture, real photo,
+cel shading, flat toon shading,
+deformed face, bad anatomy,
+extra fingers, deformed hands,
+ugly face, asymmetrical features,
+low quality, blurry, jpeg artifacts,
+watermark, text, logo, signature` },
     { id: 'wedding', tag: 'Wedding', title: '웨딩 스냅',
       img: 'styles/wedding.jpg',
       mode: 'preset',
