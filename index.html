@@ -1146,7 +1146,51 @@ Captured with a Canon EOS R5 full-frame DSLR, 85mm f/1.8 lens for crisp detail, 
       img: 'styles/anime.jpeg',
       mode: 'preset',
       cases: [
-        { id: 'vtuber', title: 'VTuber 애니', img: 'styles/anime.jpeg' },
+        { id: 'vtuber', title: '애니메이션', img: 'styles/anime.jpeg' },
+        { id: 'ghibli', title: '지브리 스타일', img: 'styles/gibri.jpg',
+          prompt: `IDENTITY LOCK: The uploaded reference photo shows a SPECIFIC person. After Studio Ghibli style conversion, the result MUST be clearly recognizable as the SAME person — as if this exact individual was re-rendered in Ghibli animation style, not a random Ghibli character.
+
+Preserve these identity markers from the reference photo exactly, rendered in Ghibli painterly style:
+- Eye shape, spacing, and angle
+- Eyebrow shape and thickness
+- Nose shape, bridge height, and tip (softened in Ghibli style)
+- Lip shape, thickness, and mouth width
+- Face shape and jawline proportions
+- Hair color, hairstyle, hair length, and parting direction
+- Skin tone (adjusted to warm Ghibli palette but same base undertone)
+- Any distinguishing features (moles, dimples, glasses)
+- Original outfit and clothing style
+
+Do not substitute with a generic Ghibli face. Do not change the person's ethnicity, age, or gender.
+
+[POSITIVE]
+Studio Ghibli style anime, Ghibli anime conversion of the SAME person from reference,
+same face structure as reference image,
+soft painterly shading with watercolor texture,
+warm peachy skin with hand-painted feel,
+Ghibli characteristic soft skin rendering,
+large expressive anime eyes with gentle highlights that keep reference eye shape,
+delicate eyelashes, gentle rounded facial features,
+keep original hair color and style with painterly texture,
+keep original outfit and clothing with Ghibli fabric rendering,
+hand-drawn 2D anime aesthetic with soft depth,
+Studio Ghibli film quality rendering,
+natural soft lighting with warm ambiance,
+dreamy atmospheric depth, pastoral color palette,
+8K ultra detailed with traditional animation feel
+
+[NEGATIVE]
+photorealistic, hyperrealistic, 3D render,
+real human skin texture, real photo,
+sharp digital shading, harsh lighting,
+VTuber style, modern anime style,
+generic Ghibli face, different person, different hairstyle, different hair color,
+deformed face, bad anatomy,
+extra fingers, deformed hands,
+ugly face, asymmetrical features,
+low quality, blurry, jpeg artifacts,
+watermark, text, logo, signature,
+oversaturated colors, neon effects` },
         { id: 'handsmall', title: '손안에 피규어', img: 'styles/handsmall.jpeg',
           prompt: `IDENTITY LOCK: The uploaded reference photo shows a SPECIFIC person. The miniature toy character MUST be clearly recognizable as the SAME person in toy form — as if this exact individual was turned into a collectible figurine, not a random toy.
 

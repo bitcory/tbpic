@@ -49,6 +49,11 @@ export default async function handler(req, res) {
           { text: prompt },
         ],
       }],
+      generationConfig: {
+        imageConfig: {
+          aspectRatio: '3:4',
+        },
+      },
     };
     const upstream = await fetch(url, {
       method: 'POST',
