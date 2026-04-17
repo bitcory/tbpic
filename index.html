@@ -323,6 +323,54 @@
     margin: 0;
   }
 
+  /* ---------- Glassmorphism CLICK button (Center of card) ---------- */
+  .card-click {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    z-index: 3;
+    padding: 16px 36px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    border: 1.5px solid rgba(255, 255, 255, 0.45);
+    color: #fff;
+    font-family: 'Urbanist', 'Noto Sans KR', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.45s cubic-bezier(.2,.8,.2,1),
+                transform 0.45s cubic-bezier(.2,.8,.2,1);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  }
+  .card.is-active .card-click {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    animation: clickPulse 2s ease-in-out infinite;
+  }
+  @keyframes clickPulse {
+    0%, 100% {
+      box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5),
+        0 0 0 0 rgba(255, 255, 255, 0.5);
+    }
+    50% {
+      box-shadow:
+        0 8px 28px rgba(0, 0, 0, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+        0 0 0 12px rgba(255, 255, 255, 0);
+    }
+  }
+
   /* ---------- Dots ---------- */
   .dots {
     flex: 0 0 auto;
@@ -1094,6 +1142,7 @@ High-end Najeonchilgi, premium mother-of-pearl inlay, black lacquer art, iridesc
     card.dataset.idx = i;
     card.innerHTML = `
       <img src="${s.img}" alt="${s.title}" />
+      <span class="card-click" aria-hidden="true">CLICK</span>
       <div class="card-meta">
         <span class="card-tag">${s.tag}</span>
         <p class="card-title">${s.title}</p>
