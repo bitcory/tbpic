@@ -45,8 +45,8 @@ export default async function handler(req, res) {
     const body = {
       contents: [{
         parts: [
-          { text: prompt },
           { inline_data: { mime_type: mimeType || 'image/png', data: imageBase64 } },
+          { text: prompt },
         ],
       }],
     };

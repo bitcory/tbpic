@@ -1149,9 +1149,20 @@ Captured with a Canon EOS R5 full-frame DSLR, 85mm f/1.8 lens for crisp detail, 
       cases: [
         { id: 'vtuber', title: 'VTuber 애니', img: 'styles/anime.jpeg' },
         { id: 'handsmall', title: '손안에 피규어', img: 'styles/handsmall.jpeg',
-          prompt: `Use the attached reference image as a facial identity reference.
-Preserve the same facial structure, proportions, and likeness from the reference image, while allowing artistic High-Quality Soft Cute Toy Character styling adjustments.
-Do not change the person's identity.
+          prompt: `IDENTITY LOCK: The uploaded reference photo shows a SPECIFIC person. The miniature toy character MUST be clearly recognizable as the SAME person in toy form — as if this exact individual was turned into a collectible figurine, not a random toy.
+
+Preserve these identity markers from the reference photo, rendered in cute toy style:
+- Eye shape, spacing, and color (rendered as large cute toy eyes but same shape/proportions)
+- Eyebrow shape
+- Nose shape and proportions (softened for toy style)
+- Lip/mouth shape
+- Face shape and jawline (rounded softly for cuteness but keep same proportions)
+- Hair color, hairstyle, length, and parting direction
+- Skin tone
+- Outfit and clothing style (miniaturized but same colors/design)
+- Gender, age, and ethnicity
+
+Do not substitute with a generic toy face. Do not change hair color or hairstyle.
 
 [Main Concept Summary]: A top-down photograph of a tiny, pocket-sized toy character version of the subject standing in the palm of a hand. The style is soft, high-quality, and cute.
 
@@ -1170,17 +1181,30 @@ The background is a blurred, out-of-focus natural setting (like a wooden table o
 Style Keywords:
 3D character render, toy photography, cute miniature, photorealistic texture, macro details, soft lighting, high resolution, 8k, sharp focus on subject, charming.` },
       ],
-      prompt: `Use the attached image of the model as facial reference and physical features. Maintain exact facial features, bone structure, hair color, hairstyle, and outfit from the reference image.
+      prompt: `IDENTITY LOCK: The uploaded reference photo shows a SPECIFIC person. After anime conversion, the result MUST be clearly recognizable as the SAME person — as if this exact individual was re-rendered in anime style, not a random anime character.
+
+Preserve these identity markers from the reference photo exactly, rendered in anime style:
+- Eye shape, spacing, and angle (inner/outer canthus position)
+- Eyebrow shape and thickness
+- Nose shape, bridge height, and tip
+- Lip shape, thickness, and mouth width
+- Face shape and jawline proportions
+- Cheekbone structure
+- Hair color, hairstyle, hair length, and parting direction
+- Skin tone (adjusted to anime palette but same base undertone)
+- Any distinguishing features (moles, dimples, glasses)
+- Original outfit and clothing style
+
+Do not substitute with a generic anime face. Do not change the person's ethnicity, age, or gender. Do not change hair color or hairstyle.
 
 [POSITIVE]
-VTuber style 3D anime, anime conversion,
-same face structure as reference image,
+VTuber style 3D anime, anime conversion of the SAME person from reference,
 smooth gradient shading skin,
 porcelain skin with subtle pink undertone,
 subsurface scattering skin texture,
-large vivid anime eyes with star highlights,
+anime-stylized eyes that keep the reference person's eye shape/spacing,
 thick defined eyelashes, soft anime facial features,
-keep original hair color and style,
+keep original hair color and style exactly,
 keep original outfit and clothing,
 semi-realistic 3D anime render,
 VTuber rendering quality,
@@ -1191,6 +1215,7 @@ cinematic depth of field, 8K ultra detailed
 photorealistic, hyperrealistic,
 real human skin texture, real photo,
 cel shading, flat toon shading,
+generic anime face, different person, different hairstyle, different hair color,
 deformed face, bad anatomy,
 extra fingers, deformed hands,
 ugly face, asymmetrical features,
