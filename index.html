@@ -433,7 +433,7 @@
   .detail-body {
     flex: 1 1 auto;
     overflow-y: auto;
-    padding: 8px 18px 0;
+    padding: 8px 18px 10px;
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -443,7 +443,8 @@
   /* upload swipe area */
   .upload-area {
     position: relative;
-    aspect-ratio: 3 / 4;
+    aspect-ratio: 1 / 1;
+    max-height: 52dvh;
     border-radius: 20px;
     background: #FFFFFF;
     border: 2px dashed #CBD5E1;
@@ -455,6 +456,7 @@
   }
   .detail-body.is-custom .upload-area {
     aspect-ratio: auto;
+    max-height: none;
     flex: 1 1 auto;
     min-height: 0;
   }
@@ -792,7 +794,7 @@
   .action-row {
     flex: 0 0 auto;
     display: flex; gap: 12px;
-    padding: 14px 18px calc(18px + env(safe-area-inset-bottom));
+    padding: 18px 18px calc(18px + env(safe-area-inset-bottom));
   }
   .action-btn {
     flex: 1 1 0;
